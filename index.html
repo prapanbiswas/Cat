@@ -1,0 +1,2825 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="daylight">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whisker &amp; Ink — The Living SVG Cat Sketchbook</title>
+  <style>
+    :root {
+      --bg-paper: #FAF6EE;
+      --bg-paper-elevated: #FFFDF9;
+      --bg-paper-secondary: #F2EBDC;
+      --bg-glass: rgba(250, 246, 238, 0.84);
+      --ink-primary: #1B1917;
+      --ink-secondary: #524B42;
+      --ink-muted: #8C8275;
+      --accent-yarn: #E5533D;
+      --accent-yarn-soft: rgba(229, 83, 61, 0.14);
+      --accent-sun: #F2A93B;
+      --accent-sun-soft: rgba(242, 169, 59, 0.18);
+      --accent-sage: #2D6E5E;
+      --accent-sage-soft: rgba(45, 110, 94, 0.14);
+      --accent-lavender: #7C64B8;
+      --border-sketch: #2B2623;
+      --border-subtle: rgba(27, 25, 23, 0.14);
+      --grid-line: rgba(27, 25, 23, 0.045);
+      --shadow-card: 6px 6px 0px #1B1917;
+      --shadow-card-hover: 10px 10px 0px #E5533D;
+      --shadow-soft: 0 18px 40px -15px rgba(27, 25, 23, 0.12);
+      --cat-fur: #2A2522;
+      --cat-belly: #F4EFE6;
+      --cat-nose: #F08A7E;
+      --font-serif: 'Georgia', 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+      --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    [data-theme="midnight"] {
+      --bg-paper: #12131A;
+      --bg-paper-elevated: #1B1D28;
+      --bg-paper-secondary: #222534;
+      --bg-glass: rgba(18, 19, 26, 0.85);
+      --ink-primary: #F6F2EA;
+      --ink-secondary: #B9B4C7;
+      --ink-muted: #79758C;
+      --accent-yarn: #FF6B54;
+      --accent-yarn-soft: rgba(255, 107, 84, 0.18);
+      --accent-sun: #FFD166;
+      --accent-sun-soft: rgba(255, 209, 102, 0.16);
+      --accent-sage: #4CC9A7;
+      --accent-sage-soft: rgba(76, 201, 167, 0.16);
+      --accent-lavender: #A992FA;
+      --border-sketch: #F6F2EA;
+      --border-subtle: rgba(246, 242, 234, 0.16);
+      --grid-line: rgba(246, 242, 234, 0.04);
+      --shadow-card: 6px 6px 0px #06070B;
+      --shadow-card-hover: 10px 10px 0px #FF6B54;
+      --shadow-soft: 0 20px 50px -15px rgba(0, 0, 0, 0.6);
+      --cat-fur: #191820;
+      --cat-belly: #EAE4DC;
+      --cat-nose: #FF8E80;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: var(--font-sans);
+      color: var(--ink-primary);
+      background-color: var(--bg-paper);
+    }
+
+    body {
+      background-color: var(--bg-paper);
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 32px 32px;
+      color: var(--ink-primary);
+      overflow-x: hidden;
+      transition: background-color 0.45s var(--transition-smooth), color 0.45s var(--transition-smooth);
+      position: relative;
+    }
+
+    /* Subtle Sketchbook Paper Grain Overlay */
+    .paper-texture-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.25;
+      mix-blend-mode: multiply;
+    }
+    [data-theme="midnight"] .paper-texture-overlay {
+      opacity: 0.12;
+      mix-blend-mode: screen;
+    }
+
+    /* Custom Cursor Paw & Ink Follower */
+    #cursor-follower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* Top Sketchbook Binding Marks */
+    .sketchbook-spiral {
+      height: 14px;
+      width: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 28px,
+        var(--border-sketch) 28px,
+        var(--border-sketch) 34px,
+        transparent 34px,
+        transparent 48px
+      );
+      opacity: 0.22;
+    }
+
+    /* Sticky Navigation */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: var(--bg-glass);
+      border-bottom: 2px solid var(--border-sketch);
+      transition: background 0.3s ease;
+    }
+
+    .nav-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0.75rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--ink-primary);
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo svg {
+      width: 44px;
+      height: 44px;
+      overflow: visible;
+      transition: transform 0.3s var(--transition-smooth);
+    }
+
+    .brand-logo:hover svg {
+      transform: rotate(-6deg) scale(1.08);
+    }
+
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.15rem 0.5rem;
+      background: var(--accent-sun-soft);
+      border: 1.5px solid var(--border-sketch);
+      border-radius: 99px;
+      color: var(--ink-primary);
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.6rem;
+      list-style: none;
+    }
+
+    .nav-link {
+      position: relative;
+      text-decoration: none;
+      color: var(--ink-primary);
+      font-weight: 600;
+      font-size: 0.94rem;
+      padding: 0.25rem 0;
+    }
+
+    .nav-link svg.nav-scribble {
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      pointer-events: none;
+    }
+
+    .nav-link svg.nav-scribble path {
+      fill: none;
+      stroke: var(--accent-yarn);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-dasharray: 120;
+      stroke-dashoffset: 120;
+      transition: stroke-dashoffset 0.35s var(--transition-smooth);
+    }
+
+    .nav-link:hover svg.nav-scribble path {
+      stroke-dashoffset: 0;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .btn-icon-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.48rem 0.9rem;
+      border-radius: 999px;
+      border: 2px solid var(--border-sketch);
+      background: var(--bg-paper-elevated);
+      color: var(--ink-primary);
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 0px var(--border-sketch);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.2s ease;
+    }
+
+    .btn-icon-pill:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0px var(--accent-yarn);
+    }
+
+    .btn-icon-pill:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px var(--border-sketch);
+    }
+
+    .btn-icon-pill.active-toggle {
+      background: var(--accent-sage-soft);
+      border-color: var(--accent-sage);
+    }
+
+    /* Section Container */
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 1.75rem;
+    }
+
+    /* HERO SECTION */
+    .hero-section {
+      padding: 2.75rem 0 4rem;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.02fr 1.28fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .sketch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.4rem 0.95rem;
+      background: var(--bg-paper-elevated);
+      border: 2px solid var(--border-sketch);
+      border-radius: 999px;
+      box-shadow: 3px 3px 0px var(--accent-sun);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1.25rem;
+    }
+
+    .sketch-badge .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-yarn);
+      display: inline-block;
+      animation: pulseGlow 1.8s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.55; }
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2.5rem, 4.6vw, 4.35rem);
+      line-height: 1.06;
+      letter-spacing: -0.025em;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .hero-title .highlight-word {
+      position: relative;
+      display: inline-block;
+      color: var(--accent-yarn);
+      font-style: italic;
+      padding: 0 0.15em;
+    }
+
+    .hero-title .highlight-word svg {
+      position: absolute;
+      inset: -8% -6%;
+      width: 112%;
+      height: 116%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .hero-subtitle {
+      font-size: 1.12rem;
+      line-height: 1.65;
+      color: var(--ink-secondary);
+      margin-bottom: 1.75rem;
+      max-width: 56ch;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.9rem 1.55rem;
+      background: var(--accent-yarn);
+      color: #FFFDF9;
+      font-weight: 700;
+      font-size: 0.98rem;
+      border: 2.5px solid var(--border-sketch);
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 5px 5px 0px var(--border-sketch);
+      transition: transform 0.2s var(--transition-smooth), box-shadow 0.2s var(--transition-smooth), background 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 8px 8px 0px var(--border-sketch);
+      background: #d84630;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 1.4rem;
+      background: var(--bg-paper-elevated);
+      color: var(--ink-primary);
+      font-weight: 700;
+      font-size: 0.98rem;
+      border: 2.5px solid var(--border-sketch);
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 5px 5px 0px var(--border-sketch);
+      transition: transform 0.2s var(--transition-smooth), box-shadow 0.2s var(--transition-smooth);
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 8px 8px 0px var(--accent-sun);
+    }
+
+    /* Live Telemetry Pills */
+    .telemetry-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      padding-top: 1.25rem;
+      border-top: 2px dashed var(--border-subtle);
+    }
+
+    .telemetry-card {
+      background: var(--bg-paper-elevated);
+      border: 2px solid var(--border-sketch);
+      border-radius: 12px;
+      padding: 0.75rem 0.9rem;
+      box-shadow: 3px 3px 0px var(--border-sketch);
+    }
+
+    .telemetry-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-muted);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .telemetry-value {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+    }
+
+    .telemetry-unit {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-yarn);
+      font-weight: 600;
+    }
+
+    /* INTERACTIVE SVG SKETCHBOOK STAGE */
+    .stage-wrapper {
+      background: var(--bg-paper-elevated);
+      border: 3px solid var(--border-sketch);
+      border-radius: 24px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      position: relative;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .stage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.15rem;
+      background: var(--bg-paper-secondary);
+      border-bottom: 2.5px solid var(--border-sketch);
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .stage-window-dots {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .window-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid var(--border-sketch);
+    }
+    .window-dot.red { background: #E5533D; }
+    .window-dot.yellow { background: #F2A93B; }
+    .window-dot.green { background: #2D6E5E; }
+
+    .stage-title-pill {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--ink-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .toy-selector-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .toy-btn {
+      padding: 0.35rem 0.72rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      border-radius: 99px;
+      border: 1.8px solid var(--border-sketch);
+      background: var(--bg-paper-elevated);
+      color: var(--ink-primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.16s ease;
+    }
+
+    .toy-btn:hover {
+      background: var(--accent-sun-soft);
+      transform: translateY(-1px);
+    }
+
+    .toy-btn.active {
+      background: var(--accent-yarn);
+      color: #FFFDF9;
+      box-shadow: 2px 2px 0px var(--border-sketch);
+    }
+
+    /* Main SVG Playground Canvas */
+    .svg-stage-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 11;
+      min-height: 410px;
+      cursor: crosshair;
+      user-select: none;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 75% 22%, var(--accent-sun-soft), transparent 52%),
+        radial-gradient(circle at 20% 80%, var(--accent-yarn-soft), transparent 45%);
+    }
+
+    #hero-cat-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Wireframe / Blueprint Mode on Stage */
+    .stage-wrapper[data-render-mode="blueprint"] .svg-stage-container {
+      background: #143054 !important;
+      background-image:
+        linear-gradient(to right, rgba(160, 216, 255, 0.14) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(160, 216, 255, 0.14) 1px, transparent 1px) !important;
+      background-size: 20px 20px !important;
+    }
+
+    .stage-wrapper[data-render-mode="blueprint"] #hero-cat-svg .fill-layer {
+      fill: rgba(20, 48, 84, 0.25) !important;
+      stroke: #7CE0FF !important;
+      stroke-dasharray: 5 3;
+    }
+
+    .stage-wrapper[data-render-mode="blueprint"] #hero-cat-svg .ink-stroke {
+      stroke: #E3F6FF !important;
+    }
+
+    .stage-wrapper[data-render-mode="pencil"] #hero-cat-svg .fill-layer {
+      fill: transparent !important;
+    }
+
+    .stage-wrapper[data-render-mode="pencil"] #hero-cat-svg .ink-stroke {
+      stroke: #4E4740 !important;
+      stroke-dasharray: 2 1;
+    }
+
+    /* Floating Stage Status Pill */
+    .stage-hud-overlay {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      pointer-events: none;
+    }
+
+    .hud-chip {
+      background: var(--bg-glass);
+      backdrop-filter: blur(6px);
+      border: 1.5px solid var(--border-sketch);
+      border-radius: 10px;
+      padding: 0.35rem 0.65rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 2px 2px 0px var(--border-sketch);
+    }
+
+    /* Stage Bottom Scrubber & Controls */
+    .stage-footer {
+      padding: 0.75rem 1.15rem;
+      background: var(--bg-paper-secondary);
+      border-top: 2.5px solid var(--border-sketch);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .scrubber-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .scrubber-label {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .sketch-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 99px;
+      background: var(--bg-paper-elevated);
+      border: 2px solid var(--border-sketch);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .sketch-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-yarn);
+      border: 2px solid var(--border-sketch);
+      cursor: grab;
+      box-shadow: 2px 2px 0px var(--border-sketch);
+    }
+
+    .render-mode-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* SECTION HEADERS */
+    .section-block {
+      padding: 5rem 0;
+      border-top: 2.5px solid var(--border-sketch);
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-yarn);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 3.4vw, 3.1rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .section-desc {
+      max-width: 48ch;
+      color: var(--ink-secondary);
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+
+    /* SECTION 2: THE 4 ANIMATED SVG VIGNETTES (FELINE DAILY RHYTHM) */
+    .vignette-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+
+    .vignette-card {
+      background: var(--bg-paper-elevated);
+      border: 2.5px solid var(--border-sketch);
+      border-radius: 22px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.28s var(--transition-smooth), box-shadow 0.28s var(--transition-smooth);
+    }
+
+    .vignette-card:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .vignette-canvas {
+      width: 100%;
+      height: 270px;
+      background: var(--bg-paper-secondary);
+      border-bottom: 2.5px solid var(--border-sketch);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .vignette-canvas svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .vignette-tag {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      background: var(--bg-paper-elevated);
+      border: 1.8px solid var(--border-sketch);
+      border-radius: 99px;
+      padding: 0.25rem 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      box-shadow: 2px 2px 0px var(--border-sketch);
+    }
+
+    .vignette-action-pill {
+      position: absolute;
+      bottom: 12px;
+      right: 14px;
+      background: var(--accent-sun);
+      color: #1B1917;
+      border: 1.8px solid #1B1917;
+      border-radius: 99px;
+      padding: 0.28rem 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      box-shadow: 2px 2px 0px #1B1917;
+      transition: transform 0.15s ease;
+    }
+
+    .vignette-card:hover .vignette-action-pill {
+      transform: scale(1.06);
+    }
+
+    .vignette-body {
+      padding: 1.4rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .vignette-title {
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .vignette-text {
+      color: var(--ink-secondary);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    /* SECTION 3: ANATOMY OF A PURR (DA VINCI SKETCHBOOK DIAGRAM) */
+    .anatomy-layout {
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 2.25rem;
+      align-items: stretch;
+    }
+
+    .anatomy-board {
+      background: var(--bg-paper-elevated);
+      border: 3px solid var(--border-sketch);
+      border-radius: 24px;
+      box-shadow: var(--shadow-card);
+      padding: 1.25rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .anatomy-svg-wrap {
+      width: 100%;
+      height: 400px;
+      position: relative;
+    }
+
+    .anatomy-svg-wrap svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .hotspot-node {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .hotspot-node:hover {
+      transform: scale(1.18);
+    }
+
+    .anatomy-inspector {
+      background: var(--bg-paper-elevated);
+      border: 3px solid var(--border-sketch);
+      border-radius: 24px;
+      box-shadow: var(--shadow-card);
+      padding: 1.85rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .inspector-Spec-List {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .spec-item {
+      padding: 0.8rem 1rem;
+      border-radius: 14px;
+      border: 2px solid var(--border-subtle);
+      background: var(--bg-paper);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .spec-item:hover, .spec-item.active {
+      border-color: var(--border-sketch);
+      background: var(--accent-sun-soft);
+      box-shadow: 4px 4px 0px var(--border-sketch);
+      transform: translateX(4px);
+    }
+
+    .spec-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.96rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .spec-item-metric {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-yarn);
+      font-weight: 700;
+    }
+
+    .spec-item-desc {
+      font-size: 0.86rem;
+      color: var(--ink-secondary);
+      line-height: 1.45;
+    }
+
+    .pupil-control-box {
+      padding: 1rem;
+      border-radius: 14px;
+      border: 2px dashed var(--border-sketch);
+      background: var(--bg-paper-secondary);
+    }
+
+    /* SECTION 4: SKETCH YOUR OWN CAT STUDIO */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 2.25rem;
+      align-items: center;
+    }
+
+    .studio-preview-card {
+      background: var(--bg-paper-elevated);
+      border: 3px solid var(--border-sketch);
+      border-radius: 24px;
+      box-shadow: var(--shadow-card);
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .studio-canvas-frame {
+      width: 100%;
+      height: 360px;
+      background: var(--bg-paper);
+      border: 2px solid var(--border-sketch);
+      border-radius: 18px;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .studio-controls-card {
+      background: var(--bg-paper-elevated);
+      border: 3px solid var(--border-sketch);
+      border-radius: 24px;
+      box-shadow: var(--shadow-card);
+      padding: 1.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .control-group-label {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-muted);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .swatch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .chip-option {
+      padding: 0.45rem 0.9rem;
+      border-radius: 10px;
+      border: 2px solid var(--border-sketch);
+      background: var(--bg-paper);
+      color: var(--ink-primary);
+      font-weight: 600;
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .chip-option:hover {
+      background: var(--accent-sun-soft);
+    }
+
+    .chip-option.selected {
+      background: var(--ink-primary);
+      color: var(--bg-paper-elevated);
+      box-shadow: 3px 3px 0px var(--accent-yarn);
+    }
+
+    /* FOOTER WITH WALKING SVG CAT */
+    .footer-section {
+      border-top: 3px solid var(--border-sketch);
+      background: var(--bg-paper-secondary);
+      padding: 4rem 0 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-walker-track {
+      position: absolute;
+      top: -42px;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      pointer-events: none;
+    }
+
+    .footer-grid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    /* Self-Drawing Stroke Animation Helper */
+    .draw-on-demand {
+      stroke-dasharray: 900;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 980px) {
+      .hero-grid,
+      .anatomy-layout,
+      .studio-grid,
+      .vignette-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Subtle SVG Paper Grain Overlay -->
+  <svg class="paper-texture-overlay" aria-hidden="true">
+    <filter id="paper-grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.08 0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#paper-grain)" />
+  </svg>
+
+  <!-- Floating Cursor Trail SVG Layer -->
+  <svg id="cursor-follower" aria-hidden="true"></svg>
+
+  <!-- Sketchbook Spiral Top Edge -->
+  <div class="sketchbook-spiral" aria-hidden="true"></div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#top" class="brand-logo" aria-label="Whisker and Ink Home">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Animated Cat Emblem">
+          <!-- Sketch Circle -->
+          <circle cx="32" cy="34" r="24" fill="var(--accent-sun-soft)" stroke="var(--border-sketch)" stroke-width="2.8" stroke-dasharray="140 6" />
+          <!-- Cat Head & Ears -->
+          <path d="M 16 38 C 14 26, 16 14, 18 12 L 26 22 C 30 20, 34 20, 38 22 L 46 12 C 48 14, 50 26, 48 38 C 47 48, 39 52, 32 52 C 25 52, 17 48, 16 38 Z"
+                fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.8" stroke-linejoin="round" />
+          <!-- Inner Ears -->
+          <path d="M 19 17 L 24 23 L 18 25 Z" fill="var(--cat-nose)" />
+          <path d="M 45 17 L 40 23 L 46 25 Z" fill="var(--cat-nose)" />
+          <!-- Eyes -->
+          <ellipse cx="25" cy="34" rx="3.2" ry="4" fill="#FFD166" />
+          <ellipse cx="39" cy="34" rx="3.2" ry="4" fill="#FFD166" />
+          <ellipse class="nav-logo-pupil" cx="25" cy="34" rx="1.3" ry="3.2" fill="#12131A" />
+          <ellipse class="nav-logo-pupil" cx="39" cy="34" rx="1.3" ry="3.2" fill="#12131A" />
+          <!-- Pink Nose & Smile -->
+          <polygon points="30,39 34,39 32,42" fill="var(--cat-nose)" />
+          <path d="M 28 43 Q 32 46 32 42 Q 32 46 36 43" fill="none" stroke="var(--cat-belly)" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <span>Whisker &amp; Ink</span>
+        <span class="brand-tag">Living SVG Studio</span>
+      </a>
+
+      <ul class="nav-links">
+        <li>
+          <a href="#playground" class="nav-link">
+            Interactive Playground
+            <svg class="nav-scribble" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <path d="M 2 6 Q 50 1 98 7" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a href="#vignettes" class="nav-link">
+            Feline Sketchbook
+            <svg class="nav-scribble" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <path d="M 2 7 Q 45 2 98 6" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a href="#anatomy" class="nav-link">
+            Anatomy of a Purr
+            <svg class="nav-scribble" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <path d="M 2 5 Q 52 9 98 4" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a href="#customizer" class="nav-link">
+            Portrait Studio
+            <svg class="nav-scribble" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <path d="M 2 6 Q 50 2 98 7" />
+            </svg>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="sound-toggle-btn" class="btn-icon-pill" type="button" title="Toggle Procedural Purr &amp; Sketch Audio">
+          <span id="sound-icon">🔇</span>
+          <span id="sound-label">Purr Audio: Off</span>
+        </button>
+        <button id="theme-toggle-btn" class="btn-icon-pill" type="button" title="Switch between Sunbeam Daylight &amp; Midnight Zoomies">
+          <span id="theme-icon">🌙</span>
+          <span id="theme-label">Midnight Zoomies</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO & INTERACTIVE SVG PLAYGROUND -->
+  <main id="top">
+    <section id="playground" class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          <!-- Left Narrative Column -->
+          <div class="hero-copy">
+            <div class="sketch-badge">
+              <span class="pulse-dot"></span>
+              <span>100% Hand-Crafted Real-Time SVG Physics</span>
+            </div>
+
+            <h1 class="hero-title">
+              Where Fountain Ink Grows
+              <span class="highlight-word">
+                Whiskers
+                <svg viewBox="0 0 220 68" preserveAspectRatio="none" aria-hidden="true">
+                  <path class="hero-circle-stroke"
+                        d="M 12 36 C 18 10, 195 6, 208 32 C 216 54, 34 64, 16 42 C 10 34, 48 16, 110 14"
+                        fill="none" stroke="var(--accent-yarn)" stroke-width="3.2" stroke-linecap="round"
+                        stroke-dasharray="520" stroke-dashoffset="0" />
+                </svg>
+              </span>
+              &amp; Nine Lives.
+            </h1>
+
+            <p class="hero-subtitle">
+              Meet <strong>Mochi</strong> — an interactive, procedurally animated SVG cat living inside an artist's sketchbook. Toss the yarn ball, shine the laser pointer, dangle the feather wand, or <strong>draw your own ink line directly on the canvas</strong> and watch Mochi chase every stroke at 60 FPS.
+            </p>
+
+            <div class="hero-cta-group">
+              <button id="btn-replay-sketch" class="btn-primary" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                  <path d="M2 2l7.586 7.586" />
+                </svg>
+                Replay Live Ink Drawing
+              </button>
+              <button id="btn-toss-yarn" class="btn-secondary" type="button">
+                🧶 Toss Bouncing Yarn
+              </button>
+            </div>
+
+            <!-- Live Feline Telemetry Counters -->
+            <div class="telemetry-strip">
+              <div class="telemetry-card">
+                <span class="telemetry-label">Purr Resonance</span>
+                <div class="telemetry-value">
+                  <span id="stat-purr-hz">26.4</span>
+                  <span class="telemetry-unit">Hz</span>
+                </div>
+              </div>
+              <div class="telemetry-card">
+                <span class="telemetry-label">Paw Swipes &amp; Pounces</span>
+                <div class="telemetry-value">
+                  <span id="stat-pounces">14</span>
+                  <span class="telemetry-unit">hits</span>
+                </div>
+              </div>
+              <div class="telemetry-card">
+                <span class="telemetry-label">Ink Unraveled</span>
+                <div class="telemetry-value">
+                  <span id="stat-yarn-meters">4.8</span>
+                  <span class="telemetry-unit">meters</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Interactive SVG Stage -->
+          <div id="stage-card" class="stage-wrapper" data-render-mode="color">
+            <!-- Top Stage Bar -->
+            <div class="stage-header">
+              <div class="stage-window-dots">
+                <span class="window-dot red"></span>
+                <span class="window-dot yellow"></span>
+                <span class="window-dot green"></span>
+                <span class="stage-title-pill">
+                  <span>FIG 01.</span>
+                  <strong id="mochi-mood-label">Mochi is Playfully Hunting</strong>
+                </span>
+              </div>
+
+              <!-- Interactive Toy Switcher -->
+              <div class="toy-selector-bar" role="tablist" aria-label="Cat Toy Mode">
+                <button class="toy-btn active" data-toy="yarn" type="button">🧶 Yarn Ball</button>
+                <button class="toy-btn" data-toy="laser" type="button">🔴 Laser Dot</button>
+                <button class="toy-btn" data-toy="feather" type="button">🪶 Feather Wand</button>
+                <button class="toy-btn" data-toy="draw" type="button">✒️ Draw Ink Trail</button>
+                <button class="toy-btn" data-toy="pet" type="button">🤚 Pet Mochi</button>
+              </div>
+            </div>
+
+            <!-- Interactive SVG Canvas -->
+            <div class="svg-stage-container" id="playground-stage">
+              <div class="stage-hud-overlay">
+                <div class="hud-chip" id="hud-instruction">
+                  <span>✨</span>
+                  <span id="hud-instruction-text">Move cursor or click to bounce the red yarn ball!</span>
+                </div>
+              </div>
+
+              <svg id="hero-cat-svg" viewBox="0 0 800 550" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <!-- Hand-drawn organic stroke filter -->
+                  <filter id="sketch-wobble" x="-5%" y="-5%" width="110%" height="110%">
+                    <feTurbulence type="turbulence" baseFrequency="0.025" numOctaves="2" result="noise" seed="3" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.6" xChannelSelector="R" yChannelSelector="G" />
+                  </filter>
+                  <!-- Laser Glow Filter -->
+                  <filter id="laser-glow" x="-100%" y="-100%" width="300%" height="300%">
+                    <feGaussianBlur stdDeviation="5" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <!-- BACKGROUND STUDIO SKETCH ELEMENTS (Self-Drawing Paths) -->
+                <g id="studio-background" filter="url(#sketch-wobble)">
+                  <!-- Sunbeam Window Arch -->
+                  <path class="sketch-path fill-layer"
+                        d="M 520 50 C 520 15, 730 15, 730 50 L 730 280 L 520 280 Z"
+                        fill="var(--accent-sun-soft)" stroke="var(--border-sketch)" stroke-width="2.5" />
+                  <!-- Window Panes -->
+                  <line class="sketch-path ink-stroke" x1="625" y1="22" x2="625" y2="280" stroke="var(--border-sketch)" stroke-width="2" />
+                  <line class="sketch-path ink-stroke" x1="520" y1="150" x2="730" y2="150" stroke="var(--border-sketch)" stroke-width="2" />
+                  <!-- Celestial Sun / Moon inside window -->
+                  <circle id="window-celestial" class="sketch-path fill-layer" cx="575" cy="92" r="24"
+                          fill="var(--accent-sun)" stroke="var(--border-sketch)" stroke-width="2.5" />
+
+                  <!-- Hanging Potted Monstera / Cat-Safe Fern -->
+                  <line class="sketch-path ink-stroke" x1="150" y1="0" x2="150" y2="85" stroke="var(--border-sketch)" stroke-width="2.2" />
+                  <path class="sketch-path fill-layer" d="M 122 85 L 178 85 L 168 130 L 132 130 Z"
+                        fill="#E5533D" stroke="var(--border-sketch)" stroke-width="2.5" stroke-linejoin="round" />
+                  <!-- Fern Leaves -->
+                  <path class="sketch-path fill-layer" d="M 135 85 C 95 60, 75 95, 92 120 C 110 115, 125 98, 135 85 Z"
+                        fill="var(--accent-sage)" stroke="var(--border-sketch)" stroke-width="2.2" />
+                  <path class="sketch-path fill-layer" d="M 165 85 C 205 55, 225 92, 205 118 C 185 112, 172 98, 165 85 Z"
+                        fill="var(--accent-sage)" stroke="var(--border-sketch)" stroke-width="2.2" />
+                  <path class="sketch-path fill-layer" d="M 150 82 C 140 35, 175 35, 162 82 Z"
+                        fill="var(--accent-sage)" stroke="var(--border-sketch)" stroke-width="2.2" />
+
+                  <!-- Artist Desk / Floor Horizon Line -->
+                  <path class="sketch-path ink-stroke" d="M 30 435 Q 400 430 770 438"
+                        fill="none" stroke="var(--border-sketch)" stroke-width="3.2" stroke-linecap="round" />
+                  <!-- Sketchbook Rug Under Cat -->
+                  <ellipse class="sketch-path fill-layer" cx="385" cy="445" rx="235" ry="38"
+                           fill="var(--accent-yarn-soft)" stroke="var(--border-sketch)" stroke-width="2.5" stroke-dasharray="14 6" />
+
+                  <!-- Steaming Artist Coffee Mug on Left -->
+                  <g id="coffee-mug" transform="translate(76, 378)">
+                    <rect class="sketch-path fill-layer" x="0" y="12" width="42" height="46" rx="6"
+                          fill="var(--bg-paper-elevated)" stroke="var(--border-sketch)" stroke-width="2.6" />
+                    <path class="sketch-path ink-stroke" d="M 42 22 C 56 22, 56 46, 42 46"
+                          fill="none" stroke="var(--border-sketch)" stroke-width="2.6" />
+                    <path class="sketch-path ink-stroke" d="M 12 4 Q 6 -12 16 -24"
+                          fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round">
+                      <animate attributeName="d"
+                               values="M 12 4 Q 6 -12 16 -24; M 12 4 Q 20 -12 10 -24; M 12 4 Q 6 -12 16 -24"
+                               dur="3.2s" repeatCount="indefinite" />
+                    </path>
+                    <path class="sketch-path ink-stroke" d="M 28 2 Q 34 -14 24 -28"
+                          fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round">
+                      <animate attributeName="d"
+                               values="M 28 2 Q 34 -14 24 -28; M 28 2 Q 20 -14 30 -28; M 28 2 Q 34 -14 24 -28"
+                               dur="3.6s" repeatCount="indefinite" />
+                    </path>
+                  </g>
+
+                  <!-- Artist Dimension Callout Lines (Architectural Sketch Vibe) -->
+                  <g opacity="0.55">
+                    <line class="sketch-path ink-stroke" x1="255" y1="185" x2="515" y2="185" stroke="var(--ink-muted)" stroke-width="1.2" stroke-dasharray="4 4" />
+                    <text x="385" y="177" text-anchor="middle" font-family="monospace" font-size="11" fill="var(--ink-muted)">EAR-TO-TAIL HARMONIC RATIO 1:1.618</text>
+                  </g>
+                </g>
+
+                <!-- USER-DRAWN INK / YARN TRAIL LAYER -->
+                <path id="user-drawn-trail" d="" fill="none" stroke="var(--accent-yarn)" stroke-width="4"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 5" />
+
+                <!-- UNRAVELING YARN TRAIL BEHIND BALL -->
+                <path id="yarn-trail-path" d="M 385 420 Q 450 440 540 410"
+                      fill="none" stroke="var(--accent-yarn)" stroke-width="3.2" stroke-linecap="round" />
+
+                <!-- MOCHI THE ARTICULATED PLAYING CAT -->
+                <g id="mochi-cat-root" transform="translate(385, 340)">
+                  <!-- Cat Shadow -->
+                  <ellipse id="mochi-shadow" cx="0" cy="98" rx="92" ry="18" fill="rgba(27,25,23,0.16)" />
+
+                  <!-- Sinuous Animated Tail (Updated at 60fps in JS) -->
+                  <path id="mochi-tail" class="sketch-path ink-stroke"
+                        d="M -68 55 C -130 45, -165 -10, -140 -55"
+                        fill="none" stroke="var(--cat-fur)" stroke-width="20" stroke-linecap="round" />
+                  <path id="mochi-tail-tip"
+                        d="M -68 55 C -130 45, -165 -10, -140 -55"
+                        fill="none" stroke="var(--border-sketch)" stroke-width="22" stroke-linecap="round" opacity="0.2" />
+
+                  <!-- Cat Body / Torso (Breathing & Pounce Squash/Stretch) -->
+                  <g id="mochi-body-group">
+                    <path class="sketch-path fill-layer"
+                          d="M -78 68 C -88 15, -55 -25, 0 -25 C 58 -25, 88 15, 78 68 C 72 92, -72 92, -78 68 Z"
+                          fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="3.2" stroke-linejoin="round" />
+                    <!-- Cream Chest Patch -->
+                    <path class="sketch-path fill-layer"
+                          d="M -34 15 C -34 -5, 34 -5, 34 15 C 38 55, 22 78, 0 78 C -22 78, -38 55, -34 15 Z"
+                          fill="var(--cat-belly)" stroke="var(--border-sketch)" stroke-width="2.4" />
+                    <!-- Cute Back Paws Tucked -->
+                    <ellipse class="sketch-path fill-layer" cx="-62" cy="84" rx="22" ry="12"
+                             fill="var(--cat-belly)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                    <ellipse class="sketch-path fill-layer" cx="62" cy="84" rx="22" ry="12"
+                             fill="var(--cat-belly)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                  </g>
+
+                  <!-- Cat Head Group (Tilts & Tracks Target) -->
+                  <g id="mochi-head-group" transform="translate(0, -36)">
+                    <!-- Left Ear -->
+                    <g id="mochi-ear-left" transform="translate(-42, -36)">
+                      <path class="sketch-path fill-layer"
+                            d="M -18 18 L -26 -32 L 16 -8 Z"
+                            fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="3.2" stroke-linejoin="round" />
+                      <path d="M -14 10 L -20 -20 L 8 -4 Z" fill="var(--cat-nose)" opacity="0.85" />
+                    </g>
+
+                    <!-- Right Ear -->
+                    <g id="mochi-ear-right" transform="translate(42, -36)">
+                      <path class="sketch-path fill-layer"
+                            d="M 18 18 L 26 -32 L -16 -8 Z"
+                            fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="3.2" stroke-linejoin="round" />
+                      <path d="M 14 10 L 20 -20 L -8 -4 Z" fill="var(--cat-nose)" opacity="0.85" />
+                    </g>
+
+                    <!-- Main Head Shape -->
+                    <path class="sketch-path fill-layer"
+                          d="M -64 4 C -68 -36, -38 -54, 0 -54 C 38 -54, 68 -36, 64 4 C 60 36, 36 46, 0 46 C -36 46, -60 36, -64 4 Z"
+                          fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="3.2" />
+
+                    <!-- Forehead Tabby M-Sketch Marks -->
+                    <path class="sketch-path ink-stroke"
+                          d="M -18 -36 L -10 -24 L 0 -34 L 10 -24 L 18 -36"
+                          fill="none" stroke="var(--cat-belly)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.65" />
+
+                    <!-- Left Eye -->
+                    <g id="mochi-eye-left" transform="translate(-26, -6)">
+                      <ellipse class="eye-sclera" cx="0" cy="0" rx="15" ry="16" fill="#FFD166" stroke="var(--border-sketch)" stroke-width="2.6" />
+                      <g id="pupil-left">
+                        <ellipse class="pupil-core" cx="0" cy="0" rx="6.5" ry="12.5" fill="#12131A" />
+                        <circle cx="-4" cy="-5" r="3.2" fill="#FFFFFF" />
+                        <circle cx="4" cy="5" r="1.5" fill="#FFFFFF" />
+                      </g>
+                      <!-- Happy/Blink Eyelid -->
+                      <path class="eye-happy-arc" d="M -13 2 Q 0 -12 13 2" fill="none" stroke="var(--cat-belly)" stroke-width="3.5" stroke-linecap="round" opacity="0" />
+                    </g>
+
+                    <!-- Right Eye -->
+                    <g id="mochi-eye-right" transform="translate(26, -6)">
+                      <ellipse class="eye-sclera" cx="0" cy="0" rx="15" ry="16" fill="#FFD166" stroke="var(--border-sketch)" stroke-width="2.6" />
+                      <g id="pupil-right">
+                        <ellipse class="pupil-core" cx="0" cy="0" rx="6.5" ry="12.5" fill="#12131A" />
+                        <circle cx="-4" cy="-5" r="3.2" fill="#FFFFFF" />
+                        <circle cx="4" cy="5" r="1.5" fill="#FFFFFF" />
+                      </g>
+                      <!-- Happy/Blink Eyelid -->
+                      <path class="eye-happy-arc" d="M -13 2 Q 0 -12 13 2" fill="none" stroke="var(--cat-belly)" stroke-width="3.5" stroke-linecap="round" opacity="0" />
+                    </g>
+
+                    <!-- Rosy Cheeks -->
+                    <ellipse cx="-42" cy="12" rx="9" ry="5" fill="var(--cat-nose)" opacity="0.45" />
+                    <ellipse cx="42" cy="12" rx="9" ry="5" fill="var(--cat-nose)" opacity="0.45" />
+
+                    <!-- Nose & Mouth -->
+                    <polygon points="-7,10 7,10 0,17" fill="var(--cat-nose)" stroke="var(--border-sketch)" stroke-width="1.8" stroke-linejoin="round" />
+                    <path id="mochi-mouth" d="M -12 22 Q -5 28 0 18 Q 5 28 12 22"
+                          fill="none" stroke="var(--cat-belly)" stroke-width="2.8" stroke-linecap="round" />
+
+                    <!-- Expressive Whiskers -->
+                    <g id="mochi-whiskers" stroke="var(--border-sketch)" stroke-width="2.2" stroke-linecap="round">
+                      <line x1="-48" y1="8" x2="-88" y2="0" />
+                      <line x1="-50" y1="16" x2="-92" y2="16" />
+                      <line x1="-48" y1="24" x2="-85" y2="32" />
+                      <line x1="48" y1="8" x2="88" y2="0" />
+                      <line x1="50" y1="16" x2="92" y2="16" />
+                      <line x1="48" y1="24" x2="85" y2="32" />
+                    </g>
+
+                    <!-- Red Artist Collar & Golden Bell -->
+                    <path d="M -42 40 Q 0 54 42 40" fill="none" stroke="var(--accent-yarn)" stroke-width="8" stroke-linecap="round" />
+                    <circle cx="0" cy="49" r="8.5" fill="var(--accent-sun)" stroke="var(--border-sketch)" stroke-width="2.4" />
+                    <line x1="-3" y1="51" x2="3" y2="51" stroke="var(--border-sketch)" stroke-width="2" />
+                  </g>
+
+                  <!-- Articulated Front Paws (Reach & Bat dynamically toward toys!) -->
+                  <g id="mochi-paws-layer">
+                    <!-- Left Reaching Paw -->
+                    <g id="paw-left-group">
+                      <path id="paw-left-arm" d="M -38 35 Q -45 65 -38 86"
+                            fill="none" stroke="var(--cat-fur)" stroke-width="24" stroke-linecap="round" />
+                      <g id="paw-left-pad" transform="translate(-38, 86)">
+                        <ellipse cx="0" cy="0" rx="15" ry="12" fill="var(--cat-belly)" stroke="var(--border-sketch)" stroke-width="2.6" />
+                        <circle cx="-6" cy="-4" r="2.8" fill="var(--cat-nose)" />
+                        <circle cx="0" cy="-6" r="2.8" fill="var(--cat-nose)" />
+                        <circle cx="6" cy="-4" r="2.8" fill="var(--cat-nose)" />
+                      </g>
+                    </g>
+
+                    <!-- Right Reaching Paw -->
+                    <g id="paw-right-group">
+                      <path id="paw-right-arm" d="M 38 35 Q 45 65 38 86"
+                            fill="none" stroke="var(--cat-fur)" stroke-width="24" stroke-linecap="round" />
+                      <g id="paw-right-pad" transform="translate(38, 86)">
+                        <ellipse cx="0" cy="0" rx="15" ry="12" fill="var(--cat-belly)" stroke="var(--border-sketch)" stroke-width="2.6" />
+                        <circle cx="-6" cy="-4" r="2.8" fill="var(--cat-nose)" />
+                        <circle cx="0" cy="-6" r="2.8" fill="var(--cat-nose)" />
+                        <circle cx="6" cy="-4" r="2.8" fill="var(--cat-nose)" />
+                      </g>
+                    </g>
+                  </g>
+                </g>
+
+                <!-- INTERACTIVE TOYS LAYER -->
+                <!-- 1. Bouncing Yarn Ball -->
+                <g id="toy-yarn-group" transform="translate(560, 395)">
+                  <circle r="26" fill="var(--accent-yarn)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                  <path d="M -18 -10 Q 0 -22 18 -8" fill="none" stroke="#FFFDF9" stroke-width="2.2" opacity="0.7" />
+                  <path d="M -20 4 Q 0 -8 20 8" fill="none" stroke="#1B1917" stroke-width="2.2" />
+                  <path d="M -10 18 Q 8 2 16 -16" fill="none" stroke="#1B1917" stroke-width="2.2" />
+                  <path d="M -14 -14 Q -2 12 14 14" fill="none" stroke="#FFFDF9" stroke-width="2" opacity="0.65" />
+                </g>
+
+                <!-- 2. Red Laser Dot -->
+                <g id="toy-laser-group" transform="translate(500, 260)" opacity="0" style="pointer-events:none;">
+                  <circle r="14" fill="rgba(255, 38, 38, 0.32)" filter="url(#laser-glow)" />
+                  <circle r="6" fill="#FF1E1E" />
+                  <circle r="2.5" fill="#FFFFFF" />
+                </g>
+
+                <!-- 3. Dangling Feather Wand -->
+                <g id="toy-feather-group" opacity="0" style="pointer-events:none;">
+                  <path id="feather-string" d="M 500 0 Q 510 120 500 220" fill="none" stroke="var(--border-sketch)" stroke-width="2" stroke-dasharray="4 3" />
+                  <g id="feather-plume" transform="translate(500, 220)">
+                    <path d="M 0 0 C -22 18, -18 52, 0 68 C 18 52, 22 18, 0 0 Z" fill="var(--accent-sage)" stroke="var(--border-sketch)" stroke-width="2.4" />
+                    <path d="M 0 8 C -14 22, -10 45, 0 58 C 10 45, 14 22, 0 8 Z" fill="var(--accent-sun)" />
+                    <line x1="0" y1="0" x2="0" y2="64" stroke="var(--border-sketch)" stroke-width="2" />
+                  </g>
+                </g>
+
+                <!-- Floating FX Layer (Hearts, Purr Notes, Paw Bursts) -->
+                <g id="stage-particles-layer"></g>
+              </svg>
+            </div>
+
+            <!-- Stage Bottom Inspector & Live Ink Scrubber -->
+            <div class="stage-footer">
+              <div class="scrubber-group">
+                <label for="ink-scrubber" class="scrubber-label">✒️ Ink Sketch Progress:</label>
+                <input id="ink-scrubber" class="sketch-slider" type="range" min="5" max="100" value="100" />
+                <span id="ink-scrubber-val" class="scrubber-label">100%</span>
+              </div>
+
+              <div class="render-mode-group" role="group" aria-label="Canvas Render Style">
+                <button class="toy-btn active" data-render="color" type="button">🎨 Living Ink</button>
+                <button class="toy-btn" data-render="pencil" type="button">✏️ Pencil</button>
+                <button class="toy-btn" data-render="blueprint" type="button">📐 Blueprint</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: THE FELINE SKETCHBOOK — 4 INTERACTIVE ANIMATED SVG VIGNETTES -->
+    <section id="vignettes" class="section-block">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <span class="section-eyebrow">✦ Chapter I — Hand-Drawn Kinetic Studies</span>
+            <h2 class="section-title">The Four Laws of Feline Physics</h2>
+          </div>
+          <p class="section-desc">
+            Every illustration below is a pure, mathematical SVG animation engine. Click any vignette canvas to interact with the cat's environment and trigger self-drawing ink strokes.
+          </p>
+        </div>
+
+        <div class="vignette-grid">
+          <!-- VIGNETTE 1: THE 3:00 AM ZOOMIES -->
+          <article class="vignette-card">
+            <div class="vignette-canvas" id="vignette-zoomies" title="Click to trigger Turbo 3:00 AM Zoomies!">
+              <span class="vignette-tag">STUDY 01 // VELOCITY</span>
+              <span class="vignette-action-pill" id="zoomie-speed-pill">⚡ Click: Turbo Sprint (1x)</span>
+              <svg viewBox="0 0 500 270" xmlns="http://www.w3.org/2000/svg">
+                <!-- Night Sky & Crescent Moon -->
+                <circle cx="420" cy="62" r="32" fill="var(--accent-sun)" stroke="var(--border-sketch)" stroke-width="2.5" />
+                <circle cx="432" cy="54" r="26" fill="var(--bg-paper-secondary)" />
+                <!-- Twinkling SVG Stars -->
+                <g stroke="var(--border-sketch)" stroke-width="2" fill="var(--accent-sun)">
+                  <path d="M 90 50 L 94 60 L 104 64 L 94 68 L 90 78 L 86 68 L 76 64 L 86 60 Z">
+                    <animateTransform attributeName="transform" type="scale" values="1;1.15;1" dur="2s" repeatCount="indefinite" additive="sum" />
+                  </path>
+                  <circle cx="240" cy="42" r="4" />
+                  <circle cx="160" cy="85" r="3" />
+                </g>
+                <!-- Kinetic Speed Lines -->
+                <g id="zoomie-speed-lines" stroke="var(--accent-yarn)" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="40" y1="150" x2="150" y2="150" stroke-dasharray="30 15">
+                    <animate attributeName="stroke-dashoffset" from="0" to="90" dur="0.45s" repeatCount="indefinite" />
+                  </line>
+                  <line x1="20" y1="185" x2="170" y2="185" stroke-dasharray="40 20">
+                    <animate attributeName="stroke-dashoffset" from="0" to="120" dur="0.35s" repeatCount="indefinite" />
+                  </line>
+                  <line x1="65" y1="215" x2="190" y2="215" stroke-dasharray="25 15">
+                    <animate attributeName="stroke-dashoffset" from="0" to="80" dur="0.4s" repeatCount="indefinite" />
+                  </line>
+                </g>
+                <!-- Curved Floor Track -->
+                <path d="M 0 232 Q 250 212 500 232" fill="none" stroke="var(--border-sketch)" stroke-width="3" />
+                <!-- Sprinting Animated SVG Cat -->
+                <g id="zoomie-runner" transform="translate(250, 175)">
+                  <g>
+                    <animateTransform id="zoomie-bob-anim" attributeName="transform" type="translate"
+                                      values="0,0; 0,-14; 0,4; 0,0" dur="0.42s" repeatCount="indefinite" />
+                    <!-- Streaming Tail -->
+                    <path d="M -55 4 Q -105 -12 -135 8" fill="none" stroke="var(--cat-fur)" stroke-width="12" stroke-linecap="round" />
+                    <!-- Stretched Aerodynamic Torso -->
+                    <path d="M -60 6 C -30 -18, 35 -18, 62 4 C 40 24, -35 24, -60 6 Z"
+                          fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                    <!-- Running Front & Back Legs -->
+                    <path d="M -45 14 L -82 38" stroke="var(--cat-fur)" stroke-width="10" stroke-linecap="round">
+                      <animate attributeName="d" values="M -45 14 L -82 38; M -45 14 L -15 42; M -45 14 L -82 38" dur="0.42s" repeatCount="indefinite" />
+                    </path>
+                    <path d="M 45 12 L 85 34" stroke="var(--cat-fur)" stroke-width="10" stroke-linecap="round">
+                      <animate attributeName="d" values="M 45 12 L 85 34; M 45 12 L 15 40; M 45 12 L 85 34" dur="0.42s" repeatCount="indefinite" />
+                    </path>
+                    <!-- Head Forward -->
+                    <circle cx="68" cy="-6" r="20" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                    <!-- Aero Ears Pinned Back -->
+                    <polygon points="55,-20 35,-32 50,-10" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.4" />
+                    <!-- Wide Zoomie Eye -->
+                    <circle cx="75" cy="-8" r="6" fill="#FFD166" />
+                    <circle cx="77" cy="-8" r="3.5" fill="#12131A" />
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div class="vignette-body">
+              <h3 class="vignette-title">
+                <span>1. The 3:00 AM Hallway Zoomies</span>
+              </h3>
+              <p class="vignette-text">
+                When the house falls silent, potential energy converts spontaneously into aerodynamic kinetic sprints. Click the sketch above to engage maximum overdrive.
+              </p>
+            </div>
+          </article>
+
+          <!-- VIGNETTE 2: CATS ARE LIQUID ("IF I FITS, I SITS") -->
+          <article class="vignette-card">
+            <div class="vignette-canvas" id="vignette-liquid" title="Click to pour the cat into a different vessel!">
+              <span class="vignette-tag">STUDY 02 // RHEOLOGY</span>
+              <span class="vignette-action-pill" id="liquid-vessel-pill">📦 Vessel: Tiny Box (Click to Switch)</span>
+              <svg viewBox="0 0 500 270" xmlns="http://www.w3.org/2000/svg">
+                <line x1="40" y1="228" x2="460" y2="228" stroke="var(--border-sketch)" stroke-width="3" stroke-linecap="round" />
+                <!-- Morphing Liquid Cat + Container Group -->
+                <g id="liquid-scene" transform="translate(250, 155)">
+                  <!-- Liquid Cat Body Path (Morphs via JS between Box, Fishbowl, Teacup!) -->
+                  <path id="liquid-cat-path"
+                        d="M -68 -10 C -68 -48, 68 -48, 68 -10 L 68 68 L -68 68 Z"
+                        fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="3" stroke-linejoin="round" />
+                  <!-- Cat Face Sticking Out -->
+                  <g id="liquid-cat-face" transform="translate(0, -24)">
+                    <polygon points="-32,-14 -40,-38 -14,-24" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.6" />
+                    <polygon points="32,-14 40,-38 14,-24" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.6" />
+                    <circle cx="-15" cy="-4" r="6" fill="#FFD166" />
+                    <circle cx="15" cy="-4" r="6" fill="#FFD166" />
+                    <ellipse cx="-15" cy="-4" rx="2" ry="5" fill="#12131A" />
+                    <ellipse cx="15" cy="-4" rx="2" ry="5" fill="#12131A" />
+                    <polygon points="-4,3 4,3 0,7" fill="var(--cat-nose)" />
+                    <path d="M -8 10 Q 0 15 8 10" fill="none" stroke="var(--cat-belly)" stroke-width="2.2" stroke-linecap="round" />
+                  </g>
+                  <!-- Container Front Overlay (Cardboard Box / Glass Bowl / Teacup) -->
+                  <path id="liquid-container-front"
+                        d="M -72 0 L 72 0 L 72 72 L -72 72 Z"
+                        fill="rgba(242, 169, 59, 0.35)" stroke="var(--border-sketch)" stroke-width="3" stroke-linejoin="round" />
+                  <text id="liquid-container-label" x="0" y="42" text-anchor="middle" font-family="monospace" font-weight="700" font-size="13" fill="var(--ink-primary)">FRAGILE // TOO SMALL</text>
+                </g>
+              </svg>
+            </div>
+            <div class="vignette-body">
+              <h3 class="vignette-title">
+                <span>2. "If I Fits, I Sits" Fluid Dynamics</span>
+              </h3>
+              <p class="vignette-text">
+                Winner of the Ig Nobel Prize in Physics: a cat simultaneously exhibits the properties of a solid and a fluid, taking the exact volume of any container.
+              </p>
+            </div>
+          </article>
+
+          <!-- VIGNETTE 3: THE SPIROGRAPH YARN HEIST -->
+          <article class="vignette-card">
+            <div class="vignette-canvas" id="vignette-yarn-web" title="Click to weave a new geometric yarn tangle!">
+              <span class="vignette-tag">STUDY 03 // ENTROPY</span>
+              <span class="vignette-action-pill">🧶 Click: Re-Weave Yarn Chaos</span>
+              <svg viewBox="0 0 500 270" xmlns="http://www.w3.org/2000/svg">
+                <!-- Self-Drawing Geometric Yarn Web -->
+                <g id="yarn-chaos-paths" fill="none" stroke-width="2.6" stroke-linecap="round">
+                  <path id="chaos-path-1" d="M 50 220 C 120 20, 380 20, 450 220 C 310 250, 90 110, 410 60 C 260 10, 140 260, 50 220"
+                        stroke="var(--accent-yarn)" stroke-dasharray="1200" stroke-dashoffset="0">
+                    <animate attributeName="stroke-dashoffset" values="1200;0;1200" dur="9s" repeatCount="indefinite" />
+                  </path>
+                  <path id="chaos-path-2" d="M 80 60 C 390 30, 110 250, 420 190 C 280 20, 210 250, 80 60"
+                        stroke="var(--accent-sun)" stroke-dasharray="900" stroke-dashoffset="0">
+                    <animate attributeName="stroke-dashoffset" values="0;900;0" dur="7.5s" repeatCount="indefinite" />
+                  </path>
+                </g>
+                <!-- Playful Upside-Down Cat Juggling Yarn -->
+                <g transform="translate(250, 158)">
+                  <ellipse cx="0" cy="36" rx="54" ry="30" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                  <circle cx="0" cy="-2" r="26" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                  <!-- Paws Raised Holding Yarn -->
+                  <path d="M -32 22 Q -52 -20 -25 -42" fill="none" stroke="var(--cat-fur)" stroke-width="14" stroke-linecap="round" />
+                  <path d="M 32 22 Q 52 -20 25 -42" fill="none" stroke="var(--cat-fur)" stroke-width="14" stroke-linecap="round" />
+                  <circle cx="0" cy="-48" r="18" fill="var(--accent-yarn)" stroke="var(--border-sketch)" stroke-width="2.5">
+                    <animateTransform attributeName="transform" type="rotate" from="0 0 -48" to="360 0 -48" dur="3s" repeatCount="indefinite" />
+                  </circle>
+                  <!-- Starry Excited Eyes -->
+                  <circle cx="-10" cy="-4" r="5.5" fill="#FFD166" />
+                  <circle cx="10" cy="-4" r="5.5" fill="#FFD166" />
+                  <circle cx="-10" cy="-4" r="3" fill="#12131A" />
+                  <circle cx="10" cy="-4" r="3" fill="#12131A" />
+                </g>
+              </svg>
+            </div>
+            <div class="vignette-body">
+              <h3 class="vignette-title">
+                <span>3. The Great Yarn Spirograph</span>
+              </h3>
+              <p class="vignette-text">
+                Left unattended for 14 seconds with a single skein of merino wool, a cat constructs non-Euclidean string topologies across every chair leg in the room.
+              </p>
+            </div>
+          </article>
+
+          <!-- VIGNETTE 4: SOLAR-POWERED SUNBEAM NAP -->
+          <article class="vignette-card">
+            <div class="vignette-canvas" id="vignette-sunbeam" title="Click to shift the golden afternoon sunbeam!">
+              <span class="vignette-tag">STUDY 04 // THERMODYNAMICS</span>
+              <span class="vignette-action-pill">☀️ Click: Shift Sunbeam Angle</span>
+              <svg viewBox="0 0 500 270" xmlns="http://www.w3.org/2000/svg">
+                <!-- Diagonal Sunbeam Polygon -->
+                <polygon id="sunbeam-ray" points="140,0 310,0 410,270 190,270"
+                         fill="var(--accent-sun-soft)" />
+                <line x1="30" y1="225" x2="470" y2="225" stroke="var(--border-sketch)" stroke-width="3" />
+                <!-- Curled Sleeping Cat -->
+                <g id="sleeping-cat-group" transform="translate(290, 195)">
+                  <g>
+                    <!-- Breathing Chest Scale Animation -->
+                    <animateTransform attributeName="transform" type="scale"
+                                      values="1,1; 1.04,1.06; 1,1" dur="3.4s" repeatCount="indefinite" />
+                    <ellipse cx="0" cy="0" rx="64" ry="34" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="3" />
+                    <!-- Curled Head -->
+                    <circle cx="-32" cy="4" r="24" fill="var(--cat-fur)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                    <!-- Closed Sleeping Eye Arcs -->
+                    <path d="M -44 6 Q -38 12 -32 6" fill="none" stroke="var(--cat-belly)" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M -26 6 Q -20 12 -14 6" fill="none" stroke="var(--cat-belly)" stroke-width="2.5" stroke-linecap="round" />
+                    <!-- Tail Wrapped Around Nose -->
+                    <path d="M 52 12 C 62 32, -15 36, -38 22" fill="none" stroke="var(--cat-fur)" stroke-width="14" stroke-linecap="round" />
+                  </g>
+                  <!-- Rising Zzz SVG Letters -->
+                  <g font-family="Georgia, serif" font-weight="700" fill="var(--accent-yarn)">
+                    <text x="-10" y="-42" font-size="16">
+                      z
+                      <animate attributeName="y" values="-35;-75" dur="2.8s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0;1;0" dur="2.8s" repeatCount="indefinite" />
+                    </text>
+                    <text x="12" y="-62" font-size="22">
+                      Z
+                      <animate attributeName="y" values="-45;-95" dur="2.8s" begin="0.9s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0;1;0" dur="2.8s" begin="0.9s" repeatCount="indefinite" />
+                    </text>
+                    <text x="34" y="-82" font-size="28">
+                      Z
+                      <animate attributeName="y" values="-55;-115" dur="2.8s" begin="1.8s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0;1;0" dur="2.8s" begin="1.8s" repeatCount="indefinite" />
+                    </text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div class="vignette-body">
+              <h3 class="vignette-title">
+                <span>4. Solar-Tracking Nap Geometry</span>
+              </h3>
+              <p class="vignette-text">
+                Cats are precision solar batteries. As the afternoon sunbeam drifts across the floorboards, the sleeping loaf migrates millimeter by millimeter to stay in peak warmth.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: ANATOMY OF A PURR (INTERACTIVE ARCHITECTURAL BLUEPRINT) -->
+    <section id="anatomy" class="section-block">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <span class="section-eyebrow">✦ Chapter II — Da Vinci Feline Codex</span>
+            <h2 class="section-title">The Biomechanical Anatomy of a Pounce</h2>
+          </div>
+          <p class="section-desc">
+            Click any numbered callout node on the architectural cat schematic or adjust the <strong>Tapetum Lucidum Pupil Aperture</strong> slider to inspect how nature engineered the ultimate acrobatic companion.
+          </p>
+        </div>
+
+        <div class="anatomy-layout">
+          <!-- Interactive SVG Blueprint Board -->
+          <div class="anatomy-board">
+            <div class="anatomy-svg-wrap">
+              <svg id="anatomy-svg" viewBox="0 0 680 390" xmlns="http://www.w3.org/2000/svg">
+                <!-- Compass & Geometric Construction Circles -->
+                <g stroke="var(--border-subtle)" stroke-width="1.5" fill="none" stroke-dasharray="5 5">
+                  <circle cx="330" cy="195" r="145" />
+                  <circle cx="330" cy="195" r="95" />
+                  <line x1="40" y1="195" x2="640" y2="195" />
+                  <line x1="330" y1="20" x2="330" y2="370" />
+                </g>
+
+                <!-- Leaping Cat Silhouette + Internal Golden Ratio Spiral -->
+                <g id="blueprint-cat" transform="translate(325, 195)">
+                  <!-- Sinuous Leaping Cat Outline -->
+                  <path id="blueprint-cat-outline"
+                        d="M -185 45 C -140 15, -110 -35, -65 -42 C -10 -50, 45 -35, 95 -20 L 125 -55 L 138 -32 C 155 -25, 165 -5, 152 12 C 135 28, 108 24, 92 18 L 155 68 L 142 78 L 72 32 C 25 32, -25 25, -62 35 L -125 88 L -138 76 L -85 22 C -122 25, -155 45, -185 45 Z"
+                        fill="var(--accent-sun-soft)" stroke="var(--border-sketch)" stroke-width="3" stroke-linejoin="round" />
+
+                  <!-- Internal Spine Curve Highlight -->
+                  <path d="M -175 42 Q -60 -38 115 -18" fill="none" stroke="var(--accent-yarn)" stroke-width="3" stroke-dasharray="6 4" />
+
+                  <!-- Callout Node 1: Whisker Sonar -->
+                  <g class="hotspot-node" data-spec="0" transform="translate(152, -8)">
+                    <circle r="16" fill="var(--accent-yarn)" stroke="var(--border-sketch)" stroke-width="2.5" />
+                    <text y="5" text-anchor="middle" fill="#FFF" font-family="monospace" font-weight="700" font-size="13">01</text>
+                  </g>
+
+                  <!-- Callout Node 2: Liquid Spine -->
+                  <g class="hotspot-node" data-spec="1" transform="translate(5, -38)">
+                    <circle r="16" fill="var(--bg-paper-elevated)" stroke="var(--border-sketch)" stroke-width="2.5" />
+                    <text y="5" text-anchor="middle" fill="var(--ink-primary)" font-family="monospace" font-weight="700" font-size="13">02</text>
+                  </g>
+
+                  <!-- Callout Node 3: 26Hz Purr Larynx -->
+                  <g class="hotspot-node" data-spec="2" transform="translate(98, 12)">
+                    <circle r="16" fill="var(--bg-paper-elevated)" stroke="var(--border-sketch)" stroke-width="2.5" />
+                    <text y="5" text-anchor="middle" fill="var(--ink-primary)" font-family="monospace" font-weight="700" font-size="13">03</text>
+                  </g>
+
+                  <!-- Callout Node 4: Gyroscopic Tail & Hindquarters -->
+                  <g class="hotspot-node" data-spec="3" transform="translate(-115, 32)">
+                    <circle r="16" fill="var(--bg-paper-elevated)" stroke="var(--border-sketch)" stroke-width="2.5" />
+                    <text y="5" text-anchor="middle" fill="var(--ink-primary)" font-family="monospace" font-weight="700" font-size="13">04</text>
+                  </g>
+                </g>
+
+                <!-- Live Eye Aperture Diagram in Top-Left Corner of Blueprint -->
+                <g transform="translate(95, 85)">
+                  <circle cx="0" cy="0" r="46" fill="var(--bg-paper-elevated)" stroke="var(--border-sketch)" stroke-width="2.8" />
+                  <circle cx="0" cy="0" r="36" fill="#2D6E5E" stroke="var(--border-sketch)" stroke-width="2" />
+                  <ellipse id="anatomy-pupil-demo" cx="0" cy="0" rx="8" ry="30" fill="#12131A" />
+                  <circle cx="-10" cy="-12" r="5" fill="#FFFFFF" opacity="0.85" />
+                  <text x="0" y="64" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="var(--ink-primary)">PUPIL APERTURE</text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Interactive Pupil Dilation Control -->
+            <div class="pupil-control-box">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span class="scrubber-label">👁️ Ambient Light vs. Hunter Dilation Simulator:</span>
+                <span id="pupil-state-label" class="scrubber-label" style="color:var(--accent-yarn);">Twilight Stalker (45%)</span>
+              </div>
+              <input id="pupil-slider" class="sketch-slider" type="range" min="10" max="100" value="45" />
+            </div>
+          </div>
+
+          <!-- Right Inspector Specification Panel -->
+          <div class="anatomy-inspector">
+            <div>
+              <span class="section-eyebrow">ACTIVE BLUEPRINT NODE</span>
+              <h3 id="active-spec-title" style="font-family:var(--font-serif); font-size:1.65rem; margin-bottom:0.35rem;">
+                01. Vibrissae Tactile Sonar Array
+              </h3>
+              <p id="active-spec-detail" style="color:var(--ink-secondary); font-size:0.95rem; line-height:1.55;">
+                24 movable macro-whiskers connected to deep proprioceptive nerve follicles detect eddy currents in the air created by objects in total darkness.
+              </p>
+            </div>
+
+            <div class="inspector-Spec-List" id="spec-list-container">
+              <div class="spec-item active" data-spec-idx="0">
+                <div class="spec-item-header">
+                  <span>01. Vibrissae Sonar Array</span>
+                  <span class="spec-item-metric">2,000+ Nerve Endings</span>
+                </div>
+                <p class="spec-item-desc">Detects air pressure shifts as subtle as a moth's wingbeat from 60 cm away.</p>
+              </div>
+
+              <div class="spec-item" data-spec-idx="1">
+                <div class="spec-item-header">
+                  <span>02. Elastic 53-Vertebrae Spine</span>
+                  <span class="spec-item-metric">180° Mid-Air Righting</span>
+                </div>
+                <p class="spec-item-desc">Flexible cushioned disks allow the front and rear torso to rotate in opposite directions simultaneously.</p>
+              </div>
+
+              <div class="spec-item" data-spec-idx="2">
+                <div class="spec-item-header">
+                  <span>03. 26 Hz Healing Purr Oscillator</span>
+                  <span class="spec-item-metric">25–140 Hz Harmonics</span>
+                </div>
+                <p class="spec-item-desc">Continuous inhalation-exhalation neural oscillator that promotes tissue regeneration and calm.</p>
+              </div>
+
+              <div class="spec-item" data-spec-idx="3">
+                <div class="spec-item-header">
+                  <span>04. Spring-Loaded Hindquarters</span>
+                  <span class="spec-item-metric">6x Body Height Leap</span>
+                </div>
+                <p class="spec-item-desc">Fast-twitch muscle fibers launch a cat 1.8 meters vertically from a standing crouch without a running start.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: SKETCH YOUR OWN CAT PORTRAIT STUDIO -->
+    <section id="customizer" class="section-block">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <span class="section-eyebrow">✦ Chapter III — Bespoke Feline Atelier</span>
+            <h2 class="section-title">Commission Your Custom SVG Cat Portrait</h2>
+          </div>
+          <p class="section-desc">
+            Mix coat patterns, eye colors, hats, and poses below. Watch our fountain pen redraw your custom cat live, or download the crisp vector `.svg` file to keep forever.
+          </p>
+        </div>
+
+        <div class="studio-grid">
+          <!-- Custom SVG Portrait Frame -->
+          <div class="studio-preview-card">
+            <div class="studio-canvas-frame">
+              <svg id="custom-portrait-svg" viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg">
+                <!-- Decorative Vintage Portrait Frame -->
+                <rect x="18" y="18" width="384" height="324" rx="16" fill="none" stroke="var(--border-sketch)" stroke-width="2" stroke-dasharray="8 4" />
+                <circle id="portrait-halo" cx="210" cy="185" r="118" fill="var(--accent-sun-soft)" stroke="var(--border-sketch)" stroke-width="2.5" />
+
+                <!-- Custom Cat Group -->
+                <g id="portrait-cat-group" transform="translate(210, 210)">
+                  <!-- Tail -->
+                  <path id="p-tail" class="portrait-stroke" d="M 55 55 C 115 45, 125 -25, 92 -52"
+                        fill="none" stroke="#2A2522" stroke-width="18" stroke-linecap="round" />
+
+                  <!-- Body -->
+                  <path id="p-body" class="portrait-stroke"
+                        d="M -68 85 C -72 20, -45 -18, 0 -18 C 45 -18, 72 20, 68 85 Z"
+                        fill="#2A2522" stroke="#1B1917" stroke-width="3.2" />
+
+                  <!-- Calico / Tuxedo / Tabby Body Overlay -->
+                  <path id="p-coat-patch"
+                        d="M -28 8 C -28 -6, 28 -6, 28 8 C 32 55, 18 82, 0 82 C -18 82, -32 55, -28 8 Z"
+                        fill="#F4EFE6" />
+
+                  <!-- Head -->
+                  <g id="p-head" transform="translate(0, -42)">
+                    <polygon id="p-ear-l" class="portrait-stroke" points="-52,-12 -62,-68 -14,-44" fill="#2A2522" stroke="#1B1917" stroke-width="3.2" stroke-linejoin="round" />
+                    <polygon id="p-ear-r" class="portrait-stroke" points="52,-12 62,-68 14,-44" fill="#2A2522" stroke="#1B1917" stroke-width="3.2" stroke-linejoin="round" />
+                    <polygon points="-46,-18 -54,-54 -22,-38" fill="#F08A7E" />
+                    <polygon points="46,-18 54,-54 22,-38" fill="#F08A7E" />
+
+                    <ellipse id="p-face" class="portrait-stroke" cx="0" cy="-6" rx="62" ry="48" fill="#2A2522" stroke="#1B1917" stroke-width="3.2" />
+
+                    <!-- Tabby Stripes (Toggled by coat) -->
+                    <path id="p-tabby-marks" d="M -18 -38 L -8 -24 L 0 -36 L 8 -24 L 18 -38"
+                          fill="none" stroke="#F4EFE6" stroke-width="3" stroke-linecap="round" />
+
+                    <!-- Eyes -->
+                    <circle id="p-eye-l" cx="-24" cy="-8" r="13" fill="#4CC9A7" stroke="#1B1917" stroke-width="2.5" />
+                    <circle id="p-eye-r" cx="24" cy="-8" r="13" fill="#4CC9A7" stroke="#1B1917" stroke-width="2.5" />
+                    <ellipse id="p-pupil-l" cx="-24" cy="-8" rx="5" ry="10" fill="#12131A" />
+                    <ellipse id="p-pupil-r" cx="24" cy="-8" rx="5" ry="10" fill="#12131A" />
+                    <circle cx="-27" cy="-12" r="3" fill="#FFFFFF" />
+                    <circle cx="21" cy="-12" r="3" fill="#FFFFFF" />
+
+                    <!-- Nose & Whiskers -->
+                    <polygon points="-6,6 6,6 0,13" fill="#F08A7E" />
+                    <path d="M -12 18 Q 0 24 0 13 Q 0 24 12 18" fill="none" stroke="#F4EFE6" stroke-width="2.6" stroke-linecap="round" />
+                    <g stroke="#1B1917" stroke-width="2" stroke-linecap="round">
+                      <line x1="-45" y1="4" x2="-82" y2="-2" />
+                      <line x1="-45" y1="12" x2="-84" y2="14" />
+                      <line x1="45" y1="4" x2="82" y2="-2" />
+                      <line x1="45" y1="12" x2="84" y2="14" />
+                    </g>
+
+                    <!-- Accessories Layer (Beret / Crown / Wizard Hat / Scarf) -->
+                    <g id="p-accessory-layer">
+                      <!-- Default Artist Beret -->
+                      <path d="M -42 -48 C -48 -78, 38 -82, 48 -50 C 25 -42, -25 -42, -42 -48 Z"
+                            fill="#E5533D" stroke="#1B1917" stroke-width="2.8" />
+                      <line x1="4" y1="-72" x2="10" y2="-82" stroke="#1B1917" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                  </g>
+
+                  <!-- Waving Paw (Toggled) -->
+                  <g id="p-waving-paw" transform="translate(-58, 12)">
+                    <ellipse cx="0" cy="0" rx="14" ry="22" fill="#F4EFE6" stroke="#1B1917" stroke-width="2.8" transform="rotate(-24)" />
+                  </g>
+                </g>
+
+                <!-- Artist Signature in Corner -->
+                <text id="portrait-caption-svg" x="210" y="328" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="15" fill="var(--ink-primary)">
+                  "Sir Mochi of Whisker Studio"
+                </text>
+              </svg>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
+              <button id="btn-animate-portrait" class="btn-primary" type="button" style="padding:0.65rem 1.2rem; font-size:0.88rem;">
+                ✒️ Redraw Portrait in Ink
+              </button>
+              <button id="btn-download-svg" class="btn-secondary" type="button" style="padding:0.65rem 1.2rem; font-size:0.88rem;">
+                ⬇️ Download Vector SVG
+              </button>
+            </div>
+          </div>
+
+          <!-- Customizer Controls -->
+          <div class="studio-controls-card">
+            <div>
+              <span class="control-group-label">1. Select Coat Pattern</span>
+              <div class="swatch-row" id="coat-options">
+                <button class="chip-option selected" data-coat="tuxedo" type="button">🎩 Midnight Tuxedo</button>
+                <button class="chip-option" data-coat="ginger" type="button">🍊 Ginger Marmalade</button>
+                <button class="chip-option" data-coat="siamese" type="button">☕ Toasted Siamese</button>
+                <button class="chip-option" data-coat="lavender" type="button">🪻 Russian Blue</button>
+              </div>
+            </div>
+
+            <div>
+              <span class="control-group-label">2. Select Eye Gemstone</span>
+              <div class="swatch-row" id="eye-options">
+                <button class="chip-option selected" data-eye="emerald" type="button">💚 Emerald Jade</button>
+                <button class="chip-option" data-eye="amber" type="button">💛 Sunbeam Gold</button>
+                <button class="chip-option" data-eye="sapphire" type="button">💙 Celestial Blue</button>
+                <button class="chip-option" data-eye="odd" type="button">✨ Odd-Eyed Magic</button>
+              </div>
+            </div>
+
+            <div>
+              <span class="control-group-label">3. Studio Headwear &amp; Flair</span>
+              <div class="swatch-row" id="hat-options">
+                <button class="chip-option selected" data-hat="beret" type="button">🎨 Parisian Beret</button>
+                <button class="chip-option" data-hat="crown" type="button">👑 Golden Crown</button>
+                <button class="chip-option" data-hat="wizard" type="button">🔮 Starry Wizard</button>
+                <button class="chip-option" data-hat="daisy" type="button">🌼 Botanical Daisy</button>
+              </div>
+            </div>
+
+            <div>
+              <span class="control-group-label">4. Name Your Cat Companion</span>
+              <input id="cat-name-input" type="text" value="Sir Mochi of Whisker Studio" maxlength="36"
+                     style="width:100%; padding:0.7rem 0.95rem; border-radius:12px; border:2px solid var(--border-sketch); background:var(--bg-paper); color:var(--ink-primary); font-family:var(--font-serif); font-size:1rem; font-weight:700;" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER WITH INTERACTIVE WALKING CAT -->
+  <footer class="footer-section">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand-logo" style="margin-bottom:0.35rem;">
+            <span>🐾 Whisker &amp; Ink Atelier</span>
+          </div>
+          <p style="color:var(--ink-secondary); font-size:0.9rem;">
+            Crafted entirely with pure inline SVG paths, procedural springs, and zero external dependencies.
+          </p>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <button id="btn-chin-scratch" class="btn-primary" type="button" style="padding:0.65rem 1.2rem; font-size:0.88rem;">
+            ❤️ Send a Chin Scratch (<span id="chin-scratch-count">428</span>)
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PURE JAVASCRIPT SVG PHYSICS, DRAWING ENGINE & PROCEDURAL AUDIO -->
+  <script>
+    (function () {
+      "use strict";
+
+      /* ==============================================================
+         1. PROCEDURAL WEB AUDIO ENGINE (Purr, Meow, Ink Scratch, Bounce)
+         ============================================================== */
+      let audioCtx = null;
+      let soundEnabled = false;
+
+      const soundToggleBtn = document.getElementById("sound-toggle-btn");
+      const soundIcon = document.getElementById("sound-icon");
+      const soundLabel = document.getElementById("sound-label");
+
+      function initAudio() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === "suspended") {
+          audioCtx.resume();
+        }
+      }
+
+      function playSynthesizedSound(type) {
+        if (!soundEnabled) return;
+        initAudio();
+        if (!audioCtx) return;
+
+        const now = audioCtx.currentTime;
+        if (type === "meow") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.14);
+          osc.frequency.exponentialRampToValueAtTime(430, now + 0.42);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.14, now + 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.44);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.45);
+        } else if (type === "purr") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(26.5, now);
+          osc.frequency.linearRampToValueAtTime(29.0, now + 0.35);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.06, now + 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.42);
+        } else if (type === "bounce") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(540, now + 0.12);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        }
+      }
+
+      soundToggleBtn.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        if (soundEnabled) {
+          initAudio();
+          soundIcon.textContent = "🔊";
+          soundLabel.textContent = "Purr Audio: On";
+          soundToggleBtn.classList.add("active-toggle");
+          playSynthesizedSound("meow");
+        } else {
+          soundIcon.textContent = "🔇";
+          soundLabel.textContent = "Purr Audio: Off";
+          soundToggleBtn.classList.remove("active-toggle");
+        }
+      });
+
+      /* ==============================================================
+         2. THEME SWITCHER (SUNBEAM DAYLIGHT vs MIDNIGHT ZOOMIES)
+         ============================================================== */
+      const themeToggleBtn = document.getElementById("theme-toggle-btn");
+      const themeIcon = document.getElementById("theme-icon");
+      const themeLabel = document.getElementById("theme-label");
+
+      themeToggleBtn.addEventListener("click", () => {
+        const htmlEl = document.documentElement;
+        const current = htmlEl.getAttribute("data-theme");
+        if (current === "daylight") {
+          htmlEl.setAttribute("data-theme", "midnight");
+          themeIcon.textContent = "☀️";
+          themeLabel.textContent = "Sunbeam Mode";
+        } else {
+          htmlEl.setAttribute("data-theme", "daylight");
+          themeIcon.textContent = "🌙";
+          themeLabel.textContent = "Midnight Zoomies";
+        }
+        playSynthesizedSound("bounce");
+      });
+
+      /* ==============================================================
+         3. LIVE INK DRAWING ENGINE (SELF-DRAWING SVG PATHS & SCRUBBER)
+         ============================================================== */
+      const sketchPaths = Array.from(document.querySelectorAll("#hero-cat-svg .sketch-path"));
+      const inkScrubber = document.getElementById("ink-scrubber");
+      const inkScrubberVal = document.getElementById("ink-scrubber-val");
+      const btnReplaySketch = document.getElementById("btn-replay-sketch");
+
+      // Measure path lengths for authentic fountain-pen stroke-dashoffset animation
+      const pathMetrics = sketchPaths.map((p) => {
+        let len = 600;
+        try {
+          if (typeof p.getTotalLength === "function") {
+            len = Math.ceil(p.getTotalLength() || 600);
+          }
+        } catch (e) {
+          len = 600;
+        }
+        p.dataset.pathLen = len;
+        return { el: p, len };
+      });
+
+      function setSketchProgress(percent) {
+        const ratio = Math.max(0, Math.min(100, percent)) / 100;
+        pathMetrics.forEach(({ el, len }) => {
+          if (ratio >= 0.99) {
+            el.style.strokeDasharray = "";
+            el.style.strokeDashoffset = "";
+            el.style.fillOpacity = "1";
+          } else {
+            el.style.strokeDasharray = `${len}`;
+            el.style.strokeDashoffset = `${len * (1 - ratio)}`;
+            // Fade in fill smoothly only in the last 35% of the sketch
+            const fillAlpha = Math.max(0, (ratio - 0.65) / 0.35);
+            el.style.fillOpacity = fillAlpha.toFixed(2);
+          }
+        });
+      }
+
+      function animateLiveInkReplay() {
+        let start = null;
+        const duration = 2200;
+        playSynthesizedSound("purr");
+
+        function step(ts) {
+          if (!start) start = ts;
+          const elapsed = ts - start;
+          const progress = Math.min(100, (elapsed / duration) * 100);
+          inkScrubber.value = Math.round(progress);
+          inkScrubberVal.textContent = `${Math.round(progress)}%`;
+          setSketchProgress(progress);
+          if (elapsed < duration) {
+            requestAnimationFrame(step);
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
+      inkScrubber.addEventListener("input", (e) => {
+        const val = Number(e.target.value);
+        inkScrubberVal.textContent = `${val}%`;
+        setSketchProgress(val);
+      });
+
+      btnReplaySketch.addEventListener("click", animateLiveInkReplay);
+
+      // Render Mode Switcher (Living Ink / Pencil / Blueprint)
+      const stageCard = document.getElementById("stage-card");
+      const renderBtns = document.querySelectorAll("[data-render]");
+      renderBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          renderBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          stageCard.setAttribute("data-render-mode", btn.dataset.render);
+          playSynthesizedSound("bounce");
+        });
+      });
+
+      /* ==============================================================
+         4. MOCHI THE PLAYING CAT — 60FPS PHYSICS, IK PAWS & TOYS
+         ============================================================== */
+      const svgStage = document.getElementById("hero-cat-svg");
+      const mochiRoot = document.getElementById("mochi-cat-root");
+      const mochiHead = document.getElementById("mochi-head-group");
+      const mochiTail = document.getElementById("mochi-tail");
+      const mochiTailTip = document.getElementById("mochi-tail-tip");
+      const pupilLeft = document.getElementById("pupil-left");
+      const pupilRight = document.getElementById("pupil-right");
+      const pawLeftArm = document.getElementById("paw-left-arm");
+      const pawLeftPad = document.getElementById("paw-left-pad");
+      const pawRightArm = document.getElementById("paw-right-arm");
+      const pawRightPad = document.getElementById("paw-right-pad");
+      const toyYarnGroup = document.getElementById("toy-yarn-group");
+      const yarnTrailPath = document.getElementById("yarn-trail-path");
+      const toyLaserGroup = document.getElementById("toy-laser-group");
+      const toyFeatherGroup = document.getElementById("toy-feather-group");
+      const featherString = document.getElementById("feather-string");
+      const featherPlume = document.getElementById("feather-plume");
+      const userDrawnTrail = document.getElementById("user-drawn-trail");
+      const particlesLayer = document.getElementById("stage-particles-layer");
+
+      const statPurrHz = document.getElementById("stat-purr-hz");
+      const statPounces = document.getElementById("stat-pounces");
+      const statYarnMeters = document.getElementById("stat-yarn-meters");
+      const mochiMoodLabel = document.getElementById("mochi-mood-label");
+      const hudInstructionText = document.getElementById("hud-instruction-text");
+
+      let activeToy = "yarn";
+      let pounceCount = 14;
+      let yarnMeters = 4.8;
+
+      // Coordinates in SVG space (800 x 550)
+      const pointer = { x: 540, y: 310, isDown: false };
+      const catPos = { x: 385, y: 340, vx: 0, targetX: 385 };
+      const yarn = { x: 560, y: 395, vx: -2.8, vy: -5.5, angle: 0 };
+      const yarnHistory = [];
+      let drawnPoints = [];
+
+      // Toy Mode Selection
+      const toyBtns = document.querySelectorAll("[data-toy]");
+      const instructionsByToy = {
+        yarn: "Click anywhere or move cursor to bounce & bat the red yarn ball!",
+        laser: "Move cursor to shine the laser dot — watch Mochi wiggle & pounce!",
+        feather: "Swish the dangling feather wand in the air for Mochi to leap at!",
+        draw: "Click & drag to draw your own custom ink line for Mochi to chase!",
+        pet: "Rub cursor over Mochi's head to trigger purrs, happy eyes & hearts!"
+      };
+
+      toyBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          toyBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeToy = btn.dataset.toy;
+          hudInstructionText.textContent = instructionsByToy[activeToy];
+
+          // Toggle visibility of toys
+          toyYarnGroup.setAttribute("opacity", activeToy === "yarn" ? "1" : "0.22");
+          yarnTrailPath.setAttribute("opacity", activeToy === "yarn" ? "1" : "0.18");
+          toyLaserGroup.setAttribute("opacity", activeToy === "laser" ? "1" : "0");
+          toyFeatherGroup.setAttribute("opacity", activeToy === "feather" ? "1" : "0");
+          if (activeToy !== "draw") {
+            drawnPoints = [];
+            userDrawnTrail.setAttribute("d", "");
+          }
+          playSynthesizedSound("bounce");
+        });
+      });
+
+      // Convert screen coordinates to SVG viewBox (800x550)
+      function clientToSvgCoords(clientX, clientY) {
+        const rect = svgStage.getBoundingClientRect();
+        const x = ((clientX - rect.left) / rect.width) * 800;
+        const y = ((clientY - rect.top) / rect.height) * 550;
+        return {
+          x: Math.max(30, Math.min(770, x)),
+          y: Math.max(30, Math.min(520, y))
+        };
+      }
+
+      // Spawn SVG Floating Particles (Hearts / Paw Prints / Musical Notes)
+      function spawnStageParticle(x, y, symbolType) {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const startX = x + (Math.random() - 0.5) * 40;
+        const startY = y + (Math.random() - 0.5) * 20;
+        g.setAttribute("transform", `translate(${startX}, ${startY})`);
+
+        if (symbolType === "heart") {
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", "M 0 4 C -6 -6, -16 0, 0 14 C 16 0, 6 -6, 0 4 Z");
+          path.setAttribute("fill", "var(--accent-yarn)");
+          path.setAttribute("stroke", "var(--border-sketch)");
+          path.setAttribute("stroke-width", "1.5");
+          g.appendChild(path);
+        } else {
+          const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          txt.textContent = symbolType === "note" ? "♪" : "🐾";
+          txt.setAttribute("font-size", "18");
+          txt.setAttribute("fill", "var(--accent-sun)");
+          g.appendChild(txt);
+        }
+
+        particlesLayer.appendChild(g);
+        let life = 0;
+        function tickParticle() {
+          life += 1;
+          const dy = -life * 1.3;
+          const dx = Math.sin(life * 0.15) * 8;
+          const alpha = Math.max(0, 1 - life / 42);
+          g.setAttribute("transform", `translate(${startX + dx}, ${startY + dy}) scale(${0.8 + life * 0.01})`);
+          g.setAttribute("opacity", alpha.toFixed(2));
+          if (life < 42) {
+            requestAnimationFrame(tickParticle);
+          } else {
+            g.remove();
+          }
+        }
+        requestAnimationFrame(tickParticle);
+      }
+
+      // Set Happy Eyes on Mochi briefly
+      let happyEyeTimer = null;
+      function triggerHappyEyes(durationMs = 900) {
+        const arcs = svgStage.querySelectorAll(".eye-happy-arc");
+        const pupils = svgStage.querySelectorAll("#pupil-left, #pupil-right");
+        arcs.forEach((a) => a.setAttribute("opacity", "1"));
+        pupils.forEach((p) => p.setAttribute("opacity", "0.15"));
+        clearTimeout(happyEyeTimer);
+        happyEyeTimer = setTimeout(() => {
+          arcs.forEach((a) => a.setAttribute("opacity", "0"));
+          pupils.forEach((p) => p.setAttribute("opacity", "1"));
+        }, durationMs);
+      }
+
+      // Stage Pointer Events
+      svgStage.addEventListener("pointermove", (e) => {
+        const pt = clientToSvgCoords(e.clientX, e.clientY);
+        pointer.x = pt.x;
+        pointer.y = pt.y;
+
+        if (activeToy === "draw" && pointer.isDown) {
+          drawnPoints.push({ x: pt.x, y: pt.y });
+          if (drawnPoints.length > 55) drawnPoints.shift();
+          if (drawnPoints.length > 1) {
+            const dStr = drawnPoints.map((p, idx) => `${idx === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+            userDrawnTrail.setAttribute("d", dStr);
+            yarnMeters += 0.03;
+            statYarnMeters.textContent = yarnMeters.toFixed(1);
+          }
+        } else if (activeToy === "pet") {
+          const distToHead = Math.hypot(pt.x - catPos.x, pt.y - (catPos.y - 36));
+          if (distToHead < 85 && Math.random() < 0.28) {
+            triggerHappyEyes(650);
+            spawnStageParticle(catPos.x, catPos.y - 85, Math.random() < 0.6 ? "heart" : "note");
+            mochiMoodLabel.textContent = "Mochi is Purring Blissfully (28.8 Hz)";
+            statPurrHz.textContent = (27.5 + Math.random() * 2.2).toFixed(1);
+            if (Math.random() < 0.2) playSynthesizedSound("purr");
+          }
+        }
+      });
+
+      svgStage.addEventListener("pointerdown", (e) => {
+        const pt = clientToSvgCoords(e.clientX, e.clientY);
+        pointer.x = pt.x;
+        pointer.y = pt.y;
+        pointer.isDown = true;
+
+        if (activeToy === "yarn") {
+          yarn.vx = (pt.x - yarn.x) * 0.09 + (Math.random() - 0.5) * 6;
+          yarn.vy = -10 - Math.random() * 4;
+          playSynthesizedSound("bounce");
+          spawnStageParticle(pt.x, pt.y, "paw");
+        } else if (activeToy === "draw") {
+          drawnPoints = [{ x: pt.x, y: pt.y }];
+          userDrawnTrail.setAttribute("d", `M ${pt.x} ${pt.y}`);
+        } else if (activeToy === "laser" || activeToy === "feather") {
+          pounceCount += 1;
+          statPounces.textContent = pounceCount;
+          spawnStageParticle(pt.x, pt.y, "paw");
+          playSynthesizedSound("meow");
+        } else if (activeToy === "pet") {
+          triggerHappyEyes(1100);
+          spawnStageParticle(catPos.x, catPos.y - 90, "heart");
+          playSynthesizedSound("purr");
+        }
+      });
+
+      window.addEventListener("pointerup", () => {
+        pointer.isDown = false;
+      });
+
+      // Toss Yarn Button
+      document.getElementById("btn-toss-yarn").addEventListener("click", () => {
+        toyBtns.forEach((b) => b.classList.toggle("active", b.dataset.toy === "yarn"));
+        activeToy = "yarn";
+        toyYarnGroup.setAttribute("opacity", "1");
+        yarnTrailPath.setAttribute("opacity", "1");
+        toyLaserGroup.setAttribute("opacity", "0");
+        toyFeatherGroup.setAttribute("opacity", "0");
+        yarn.vy = -13.5;
+        yarn.vx = (Math.random() > 0.5 ? 1 : -1) * (7 + Math.random() * 4);
+        playSynthesizedSound("bounce");
+      });
+
+      // Periodic Natural Blink
+      setInterval(() => {
+        if (Math.random() < 0.7) {
+          triggerHappyEyes(160);
+        }
+      }, 3600);
+
+      // Main 60FPS Animation Loop
+      let frameTick = 0;
+      function updatePlaygroundPhysics() {
+        frameTick += 1;
+
+        // Determine current target point that Mochi is tracking
+        let targetX = pointer.x;
+        let targetY = pointer.y;
+
+        if (activeToy === "yarn") {
+          // Update bouncing yarn physics
+          yarn.vy += 0.42; // gravity
+          yarn.x += yarn.vx;
+          yarn.y += yarn.vy;
+          yarn.angle += yarn.vx * 3.2;
+
+          // Floor bounce
+          if (yarn.y > 412) {
+            yarn.y = 412;
+            yarn.vy *= -0.74;
+            yarn.vx *= 0.96;
+            if (Math.abs(yarn.vy) < 1.2) yarn.vy = 0;
+          }
+          // Walls bounce
+          if (yarn.x < 95) {
+            yarn.x = 95;
+            yarn.vx *= -0.85;
+          } else if (yarn.x > 730) {
+            yarn.x = 730;
+            yarn.vx *= -0.85;
+          }
+
+          // Cat automatically bats the yarn ball when it rolls close!
+          const distCatToYarn = Math.hypot(yarn.x - catPos.x, yarn.y - (catPos.y + 40));
+          if (distCatToYarn < 125 && Math.abs(yarn.vx) < 8 && frameTick % 18 === 0) {
+            yarn.vx = (yarn.x >= catPos.x ? 1 : -1) * (6.5 + Math.random() * 4);
+            yarn.vy = -8.5 - Math.random() * 3.5;
+            pounceCount += 1;
+            statPounces.textContent = pounceCount;
+            yarnMeters += 0.2;
+            statYarnMeters.textContent = yarnMeters.toFixed(1);
+            spawnStageParticle(yarn.x, yarn.y, "paw");
+            playSynthesizedSound("bounce");
+          }
+
+          toyYarnGroup.setAttribute("transform", `translate(${yarn.x.toFixed(1)}, ${yarn.y.toFixed(1)}) rotate(${yarn.angle.toFixed(1)})`);
+
+          // Update unraveling yarn trail
+          yarnHistory.push({ x: yarn.x, y: yarn.y + 18 });
+          if (yarnHistory.length > 26) yarnHistory.shift();
+          if (yarnHistory.length > 2) {
+            const dTrail = yarnHistory.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(" ");
+            yarnTrailPath.setAttribute("d", dTrail);
+          }
+
+          targetX = yarn.x;
+          targetY = yarn.y;
+          mochiMoodLabel.textContent = "Mochi is Batting the Yarn Ball";
+        } else if (activeToy === "laser") {
+          toyLaserGroup.setAttribute("transform", `translate(${pointer.x.toFixed(1)}, ${pointer.y.toFixed(1)})`);
+          targetX = pointer.x;
+          targetY = pointer.y;
+          mochiMoodLabel.textContent = "Mochi Locked onto Red Laser!";
+        } else if (activeToy === "feather") {
+          const swingX = pointer.x + Math.sin(frameTick * 0.08) * 18;
+          const swingY = Math.min(390, pointer.y);
+          featherString.setAttribute("d", `M ${ pointer.x.toFixed(1) } 0 Q ${ (pointer.x + (swingX - pointer.x) * 1.4).toFixed(1) } ${ (swingY * 0.5).toFixed(1) } ${ swingX.toFixed(1) } ${ swingY.toFixed(1) }`);
+          featherPlume.setAttribute("transform", `translate(${swingX.toFixed(1)}, ${swingY.toFixed(1)}) rotate(${Math.sin(frameTick * 0.08) * 16})`);
+          targetX = swingX;
+          targetY = swingY + 30;
+          mochiMoodLabel.textContent = "Mochi is Stalking the Feather Wand";
+        } else if (activeToy === "draw" && drawnPoints.length > 0) {
+          // Chase along the user-drawn path!
+          const tip = drawnPoints[drawnPoints.length - 1];
+          targetX = tip.x;
+          targetY = tip.y;
+          if (drawnPoints.length > 2 && frameTick % 4 === 0) {
+            drawnPoints.shift();
+            const dStr = drawnPoints.map((p, idx) => `${idx === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+            userDrawnTrail.setAttribute("d", dStr);
+          }
+          mochiMoodLabel.textContent = "Mochi is Chasing Your Ink Line!";
+        }
+
+        // Smooth Horizontal Cat Movement along the Studio Rug (x: 210 to 590)
+        const desiredCatX = Math.max(210, Math.min(590, targetX * 0.65 + 385 * 0.35));
+        catPos.vx += (desiredCatX - catPos.x) * 0.045;
+        catPos.vx *= 0.78;
+        catPos.x += catPos.vx;
+
+        // Playful crouch / butt-wiggle when laser or feather is active
+        const wiggleAngle = activeToy === "laser" ? Math.sin(frameTick * 0.45) * 2.8 : Math.sin(frameTick * 0.05) * 0.8;
+        const hopY = Math.abs(catPos.vx) > 0.8 ? -Math.abs(Math.sin(frameTick * 0.25)) * 10 : 0;
+        mochiRoot.setAttribute("transform", `translate(${catPos.x.toFixed(1)}, ${(catPos.y + hopY).toFixed(1)}) rotate(${wiggleAngle.toFixed(2)})`);
+
+        // Head Tilt & Eye Pupil Tracking
+        const dx = targetX - catPos.x;
+        const dy = targetY - (catPos.y - 36);
+        const angle = Math.atan2(dy, dx);
+        const eyeDist = Math.min(5.8, Math.hypot(dx, dy) / 38);
+        const px = Math.cos(angle) * eyeDist;
+        const py = Math.sin(angle) * eyeDist;
+
+        pupilLeft.setAttribute("transform", `translate(${px.toFixed(2)}, ${py.toFixed(2)})`);
+        pupilRight.setAttribute("transform", `translate(${px.toFixed(2)}, ${py.toFixed(2)})`);
+
+        const headTilt = Math.max(-14, Math.min(14, dx * 0.045));
+        mochiHead.setAttribute("transform", `translate(${(dx * 0.03).toFixed(1)}, -36) rotate(${headTilt.toFixed(1)})`);
+
+        // Sinuous Bezier Tail Wave
+        const tailSpeed = activeToy === "laser" ? 0.16 : 0.065;
+        const swish1 = Math.sin(frameTick * tailSpeed) * 34;
+        const swish2 = Math.cos(frameTick * tailSpeed * 0.85) * 28;
+        const tailPathD = `M -68 55 C -130 ${(35 + swish1 * 0.5).toFixed(1)}, ${(-165 + swish1).toFixed(1)} ${(-10 + swish2).toFixed(1)}, ${(-135 + swish2).toFixed(1)} -62`;
+        mochiTail.setAttribute("d", tailPathD);
+        mochiTailTip.setAttribute("d", tailPathD);
+
+        // Articulated Front Paws Reaching Toward Target when Close!
+        const relX = targetX - catPos.x;
+        const relY = targetY - catPos.y;
+        const distToTarget = Math.hypot(relX, relY);
+
+        // Left Paw (activates when target is on left/center and within reach)
+        if (distToTarget < 195 && relX < 45) {
+          const reachX = Math.max(-125, Math.min(-10, relX * 0.68));
+          const reachY = Math.max(-75, Math.min(92, relY * 0.72));
+          pawLeftArm.setAttribute("d", `M -38 35 Q ${(reachX * 0.6).toFixed(1)} ${((35 + reachY) * 0.5).toFixed(1)} ${reachX.toFixed(1)} ${reachY.toFixed(1)}`);
+          pawLeftPad.setAttribute("transform", `translate(${reachX.toFixed(1)}, ${reachY.toFixed(1)})`);
+        } else {
+          pawLeftArm.setAttribute("d", "M -38 35 Q -45 65 -38 86");
+          pawLeftPad.setAttribute("transform", "translate(-38, 86)");
+        }
+
+        // Right Paw (activates when target is on right/center and within reach)
+        if (distToTarget < 195 && relX > -45) {
+          const reachX = Math.max(10, Math.min(125, relX * 0.68));
+          const reachY = Math.max(-75, Math.min(92, relY * 0.72));
+          pawRightArm.setAttribute("d", `M 38 35 Q ${(reachX * 0.6).toFixed(1)} ${((35 + reachY) * 0.5).toFixed(1)} ${reachX.toFixed(1)} ${reachY.toFixed(1)}`);
+          pawRightPad.setAttribute("transform", `translate(${reachX.toFixed(1)}, ${reachY.toFixed(1)})`);
+        } else {
+          pawRightArm.setAttribute("d", "M 38 35 Q 45 65 38 86");
+          pawRightPad.setAttribute("transform", "translate(38, 86)");
+        }
+
+        requestAnimationFrame(updatePlaygroundPhysics);
+      }
+      requestAnimationFrame(updatePlaygroundPhysics);
+
+      /* ==============================================================
+         5. INTERACTIVE VIGNETTE CARDS (CHAPTER I)
+         ============================================================== */
+      // Vignette 1: Turbo Zoomies Speed Toggle
+      let zoomieTurbo = false;
+      const vignetteZoomies = document.getElementById("vignette-zoomies");
+      const zoomieBobAnim = document.getElementById("zoomie-bob-anim");
+      const zoomieSpeedPill = document.getElementById("zoomie-speed-pill");
+
+      vignetteZoomies.addEventListener("click", () => {
+        zoomieTurbo = !zoomieTurbo;
+        zoomieBobAnim.setAttribute("dur", zoomieTurbo ? "0.18s" : "0.42s");
+        zoomieSpeedPill.textContent = zoomieTurbo ? "🔥 TURBO 3:00 AM OVERDRIVE (3x)" : "⚡ Click: Turbo Sprint (1x)";
+        playSynthesizedSound("meow");
+      });
+
+      // Vignette 2: Liquid Cat Vessel Switcher (Cardboard Box -> Round Fishbowl -> Teacup)
+      const vessels = [
+        {
+          name: "📦 Vessel: Tiny Box (Click to Switch)",
+          label: "FRAGILE // TOO SMALL",
+          catPath: "M -68 -10 C -68 -48, 68 -48, 68 -10 L 68 68 L -68 68 Z",
+          frontPath: "M -72 0 L 72 0 L 72 72 L -72 72 Z",
+          fill: "rgba(242, 169, 59, 0.35)"
+        },
+        {
+          name: "🫧 Vessel: Glass Fishbowl",
+          label: "100% FLUID STATE",
+          catPath: "M -58 -8 C -88 35, -62 72, 0 72 C 62 72, 88 35, 58 -8 C 35 -36, -35 -36, -58 -8 Z",
+          frontPath: "M -62 -6 C -94 38, -68 74, 0 74 C 68 74, 94 38, 62 -6 Z",
+          fill: "rgba(76, 201, 167, 0.28)"
+        },
+        {
+          name: "🍵 Vessel: Porcelain Teacup",
+          label: "EARL GREY LOAF",
+          catPath: "M -52 -6 C -48 54, -32 70, 0 70 C 32 70, 48 54, 52 -6 Z",
+          frontPath: "M -56 -2 C -52 58, -34 72, 0 72 C 34 72, 52 58, 56 -2 Z",
+          fill: "rgba(229, 83, 61, 0.28)"
+        }
+      ];
+      let vesselIdx = 0;
+      document.getElementById("vignette-liquid").addEventListener("click", () => {
+        vesselIdx = (vesselIdx + 1) % vessels.length;
+        const v = vessels[vesselIdx];
+        document.getElementById("liquid-vessel-pill").textContent = v.name;
+        document.getElementById("liquid-container-label").textContent = v.label;
+        document.getElementById("liquid-cat-path").setAttribute("d", v.catPath);
+        const front = document.getElementById("liquid-container-front");
+        front.setAttribute("d", v.frontPath);
+        front.setAttribute("fill", v.fill);
+        playSynthesizedSound("bounce");
+      });
+
+      // Vignette 3: Yarn Chaos Re-Weave
+      document.getElementById("vignette-yarn-web").addEventListener("click", () => {
+        const p1 = document.getElementById("chaos-path-1");
+        const r1 = 40 + Math.floor(Math.random() * 160);
+        const r2 = 60 + Math.floor(Math.random() * 160);
+        p1.setAttribute("d", `M 50 220 C ${r1} 20, ${500 - r1} 20, 450 220 C 310 ${r2}, 90 110, 410 60 C 260 10, 140 260, 50 220`);
+        playSynthesizedSound("bounce");
+      });
+
+      // Vignette 4: Sunbeam Angle Shift
+      let sunAngleIdx = 0;
+      const sunConfigs = [
+        { points: "140,0 310,0 410,270 190,270", catX: 290 },
+        { points: "60,0 230,0 280,270 80,270", catX: 185 },
+        { points: "240,0 420,0 480,270 290,270", catX: 370 }
+      ];
+      document.getElementById("vignette-sunbeam").addEventListener("click", () => {
+        sunAngleIdx = (sunAngleIdx + 1) % sunConfigs.length;
+        const cfg = sunConfigs[sunAngleIdx];
+        document.getElementById("sunbeam-ray").setAttribute("points", cfg.points);
+        document.getElementById("sleeping-cat-group").setAttribute("transform", `translate(${cfg.catX}, 195)`);
+        playSynthesizedSound("purr");
+      });
+
+      /* ==============================================================
+         6. ANATOMY BLUEPRINT HOTSPOTS & PUPIL APERTURE SLIDER
+         ============================================================== */
+      const specsData = [
+        {
+          title: "01. Vibrissae Tactile Sonar Array",
+          detail: "24 movable macro-whiskers connected to deep proprioceptive nerve follicles detect eddy currents in the air created by objects in total darkness."
+        },
+        {
+          title: "02. Elastic 53-Vertebrae Spine",
+          detail: "Equipped with extra-cushioned intervertebral discs and no rigid collarbone, allowing the cat's front and rear body segments to twist 180° in mid-air."
+        },
+        {
+          title: "03. 26 Hz Healing Purr Oscillator",
+          detail: "Driven by a rhythmic neural oscillator in the brain that cycles laryngeal muscles 26 times per second during both inhalation and exhalation."
+        },
+        {
+          title: "04. Spring-Loaded Hindquarters",
+          detail: "Powered by high-efficiency fast-twitch muscle fibers and an elongated calcaneus lever, launching the cat up to 6 times its standing height."
+        }
+      ];
+
+      const hotspotNodes = document.querySelectorAll(".hotspot-node");
+      const specItems = document.querySelectorAll(".spec-item");
+      const activeSpecTitle = document.getElementById("active-spec-title");
+      const activeSpecDetail = document.getElementById("active-spec-detail");
+
+      function selectAnatomySpec(idx) {
+        const spec = specsData[idx];
+        activeSpecTitle.textContent = spec.title;
+        activeSpecDetail.textContent = spec.detail;
+
+        specItems.forEach((item, i) => item.classList.toggle("active", i === idx));
+        hotspotNodes.forEach((node, i) => {
+          const circle = node.querySelector("circle");
+          const text = node.querySelector("text");
+          if (i === idx) {
+            circle.setAttribute("fill", "var(--accent-yarn)");
+            text.setAttribute("fill", "#FFFFFF");
+          } else {
+            circle.setAttribute("fill", "var(--bg-paper-elevated)");
+            text.setAttribute("fill", "var(--ink-primary)");
+          }
+        });
+        playSynthesizedSound("bounce");
+      }
+
+      hotspotNodes.forEach((node) => {
+        node.addEventListener("click", () => selectAnatomySpec(Number(node.dataset.spec)));
+      });
+      specItems.forEach((item) => {
+        item.addEventListener("click", () => selectAnatomySpec(Number(item.dataset.specIdx)));
+      });
+
+      // Pupil Dilation Slider
+      const pupilSlider = document.getElementById("pupil-slider");
+      const anatomyPupilDemo = document.getElementById("anatomy-pupil-demo");
+      const pupilStateLabel = document.getElementById("pupil-state-label");
+
+      pupilSlider.addEventListener("input", (e) => {
+        const val = Number(e.target.value);
+        const rx = 3 + (val / 100) * 28;
+        anatomyPupilDemo.setAttribute("rx", rx.toFixed(1));
+        if (val < 30) {
+          pupilStateLabel.textContent = `High Noon Slit (${val}%)`;
+        } else if (val < 70) {
+          pupilStateLabel.textContent = `Twilight Stalker (${val}%)`;
+        } else {
+          pupilStateLabel.textContent = `Maximum Pounce Dilation (${val}%)`;
+        }
+      });
+
+      /* ==============================================================
+         7. CUSTOM SVG CAT PORTRAIT STUDIO & VECTOR DOWNLOADER
+         ============================================================== */
+      const coatConfigs = {
+        tuxedo: { fur: "#2A2522", patch: "#F4EFE6", tabby: "none" },
+        ginger: { fur: "#E07A38", patch: "#FFF5E4", tabby: "block" },
+        siamese: { fur: "#EFE5D5", patch: "#4A3B32", tabby: "none" },
+        lavender: { fur: "#6E738B", patch: "#DCE0EE", tabby: "block" }
+      };
+
+      const eyeConfigs = {
+        emerald: { left: "#4CC9A7", right: "#4CC9A7" },
+        amber: { left: "#F2A93B", right: "#F2A93B" },
+        sapphire: { left: "#4DA8DA", right: "#4DA8DA" },
+        odd: { left: "#4CC9A7", right: "#4DA8DA" }
+      };
+
+      const hatSvgTemplates = {
+        beret: `<path d="M -42 -48 C -48 -78, 38 -82, 48 -50 C 25 -42, -25 -42, -42 -48 Z" fill="#E5533D" stroke="#1B1917" stroke-width="2.8" /><line x1="4" y1="-72" x2="10" y2="-82" stroke="#1B1917" stroke-width="3" stroke-linecap="round" />`,
+        crown: `<polygon points="-32,-46 -38,-82 -14,-62 0,-88 14,-62 38,-82 32,-46" fill="#FFD166" stroke="#1B1917" stroke-width="2.8" stroke-linejoin="round" /><circle cx="0" cy="-64" r="4.5" fill="#E5533D" />`,
+        wizard: `<polygon points="-48,-46 48,-46 0,-112" fill="#7C64B8" stroke="#1B1917" stroke-width="2.8" stroke-linejoin="round" /><ellipse cx="0" cy="-46" rx="56" ry="8" fill="#7C64B8" stroke="#1B1917" stroke-width="2.8" /><circle cx="4" cy="-76" r="5" fill="#FFD166" />`,
+        daisy: `<g transform="translate(26, -48)"><circle cx="-10" cy="0" r="8" fill="#FFF" stroke="#1B1917" stroke-width="2"/><circle cx="10" cy="0" r="8" fill="#FFF" stroke="#1B1917" stroke-width="2"/><circle cx="0" cy="-10" r="8" fill="#FFF" stroke="#1B1917" stroke-width="2"/><circle cx="0" cy="10" r="8" fill="#FFF" stroke="#1B1917" stroke-width="2"/><circle cx="0" cy="0" r="7" fill="#FFD166" stroke="#1B1917" stroke-width="2"/></g>`
+      };
+
+      document.querySelectorAll("#coat-options .chip-option").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#coat-options .chip-option").forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          const cfg = coatConfigs[btn.dataset.coat];
+          document.getElementById("p-tail").setAttribute("stroke", cfg.fur);
+          document.getElementById("p-body").setAttribute("fill", cfg.fur);
+          document.getElementById("p-ear-l").setAttribute("fill", cfg.fur);
+          document.getElementById("p-ear-r").setAttribute("fill", cfg.fur);
+          document.getElementById("p-face").setAttribute("fill", cfg.fur);
+          document.getElementById("p-coat-patch").setAttribute("fill", cfg.patch);
+          document.getElementById("p-tabby-marks").style.display = cfg.tabby;
+          playSynthesizedSound("bounce");
+        });
+      });
+
+      document.querySelectorAll("#eye-options .chip-option").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#eye-options .chip-option").forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          const cfg = eyeConfigs[btn.dataset.eye];
+          document.getElementById("p-eye-l").setAttribute("fill", cfg.left);
+          document.getElementById("p-eye-r").setAttribute("fill", cfg.right);
+          playSynthesizedSound("bounce");
+        });
+      });
+
+      document.querySelectorAll("#hat-options .chip-option").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#hat-options .chip-option").forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          document.getElementById("p-accessory-layer").innerHTML = hatSvgTemplates[btn.dataset.hat];
+          playSynthesizedSound("meow");
+        });
+      });
+
+      const catNameInput = document.getElementById("cat-name-input");
+      const portraitCaptionSvg = document.getElementById("portrait-caption-svg");
+      catNameInput.addEventListener("input", (e) => {
+        portraitCaptionSvg.textContent = `"${e.target.value || "Unnamed Kitty"}"`;
+      });
+
+      // Animate Portrait Redraw
+      document.getElementById("btn-animate-portrait").addEventListener("click", () => {
+        const strokes = document.querySelectorAll("#custom-portrait-svg .portrait-stroke");
+        strokes.forEach((s) => {
+          s.style.transition = "none";
+          s.style.strokeDasharray = "700";
+          s.style.strokeDashoffset = "700";
+          s.getBoundingClientRect();
+          s.style.transition = "stroke-dashoffset 1.25s cubic-bezier(0.22, 1, 0.36, 1)";
+          s.style.strokeDashoffset = "0";
+        });
+        playSynthesizedSound("purr");
+      });
+
+      // Download Custom SVG Portrait
+      document.getElementById("btn-download-svg").addEventListener("click", () => {
+        const svgEl = document.getElementById("custom-portrait-svg");
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgEl);
+        const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "whisker_and_ink_cat_portrait.svg";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        playSynthesizedSound("meow");
+      });
+
+      /* ==============================================================
+         8. FOOTER CHIN SCRATCH COUNTER
+         ============================================================== */
+      let chinScratchCount = 428;
+      const chinBtn = document.getElementById("btn-chin-scratch");
+      const chinSpan = document.getElementById("chin-scratch-count");
+      chinBtn.addEventListener("click", () => {
+        chinScratchCount += 1;
+        chinSpan.textContent = chinScratchCount;
+        playSynthesizedSound("purr");
+      });
+    })();
+  </script>
+</body>
+</html>
